@@ -1,13 +1,13 @@
 """
-EMA Cross alert — UZSE aksiyalari (xisobterminal.uz ochiq API) -> Telegram
+EMA Cross alert — UZSE aksiyalari (GoInvest ochiq API) -> Telegram
 
 Ishlatish:
     pip install requests
     export TG_TOKEN="BotFather bergan token"
     export TG_CHAT_ID="sizning chat id"
-    python ema_cross_alert.py --inspect UZMK     # avval API formatini ko'rish
-    python ema_cross_alert.py                    # doimiy ishlaydi (har 30 daqiqada tekshiradi)
-    python ema_cross_alert.py --once             # bir marta tekshiradi (cron uchun)
+    python ema_cross_alert.py --inspect KVTS     # bitta aksiya uchun javobni ko'rish
+    python ema_cross_alert.py --once             # bir marta tekshiradi (GitHub Actions uchun)
+    python ema_cross_alert.py                    # doimiy ishlaydi (har 24 soatda)
 """
 import argparse, json, os, sys, time
 import requests
@@ -22,61 +22,83 @@ TICKERS = [
     "ALSM", "UZIR", "MCBA", "UZIRP", "MCBAP", "BNGPP", "NGQS", "UVGT",
     "AGBAP", "OHDN", "UTGAP", "DORI", "GRBK", "AGMKP",
 ]   # faqat aksiyalar (obligatsiyalarsiz)
-SHORT, LONG = 9, 26                  # skrindagi EMA Cross sozlamasi
-RANGE = "1y"                         # tarix uzunligi
-CHECK_EVERY = 30 * 60                # sekund
+SHORT, LONG = 9, 26                  # EMA Cross sozlamasi
+LIMIT = 350                          # nechta kunlik sham olinadi
+CHECK_EVERY = 24 * 3600              # faqat doimiy rejim uchun
 STATE_FILE = "ema_state.json"        # takroriy alertni oldini olish
-BASE = "https://xisobterminal.uz"
+IDS_FILE = "ticker_ids.json"         # tiker -> GoInvest ichki ID
+API = "https://api.goinvest.uz/api"
+MAX_ID = 400                         # ID qidirishda yuqori chegara
+PAUSE = 0.7                          # so'rovlar orasidagi pauza (sekund)
+TRIES = 4
 TG_TOKEN = os.getenv("TG_TOKEN", "")
 TG_CHAT_ID = os.getenv("TG_CHAT_ID", "")
 # --------------------------------------------
 
-
-def fetch_raw(ticker):
-    r = requests.get(f"{BASE}/api/compare",
-                     params={"tickers": ticker, "range": RANGE}, timeout=20,
-                     headers={"User-Agent": "ema-cross-alert/1.0"})
-    r.raise_for_status()
-    return r.json()
+SESSION = requests.Session()
+SESSION.headers["User-Agent"] = "ema-cross-alert/2.0"
 
 
-def _num(p):
-    """Nuqtadan (dict yoki [t, v] ro'yxat) qiymatni oladi."""
-    if isinstance(p, (list, tuple)) and len(p) >= 2:
-        return p[1]
-    if isinstance(p, dict):
-        for k in ("close", "c", "price", "value", "v", "last"):
-            if k in p and p[k] is not None:
-                return p[k]
-    return p if isinstance(p, (int, float)) else None
+def get_json(url, params=None):
+    last = None
+    for i in range(TRIES):
+        try:
+            r = SESSION.get(url, params=params, timeout=(10, 45))
+            r.raise_for_status()
+            return r.json()
+        except requests.RequestException as e:
+            last = e
+            if i < TRIES - 1:
+                time.sleep(5 * (i + 1))
+    raise last
 
 
-def _find_points(obj, ticker):
-    """JSON ichidan narx qatorini topadi (format noma'lum bo'lgani uchun moslashuvchan)."""
-    if isinstance(obj, list) and obj and all(_num(x) is not None for x in obj[:5]):
-        return obj
-    if isinstance(obj, dict):
-        if ticker in obj:
-            found = _find_points(obj[ticker], ticker)
-            if found:
-                return found
-        for v in obj.values():
-            found = _find_points(v, ticker)
-            if found:
-                return found
-    if isinstance(obj, list):
-        for v in obj:
-            found = _find_points(v, ticker)
-            if found:
-                return found
-    return None
+def load_json(path, default):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception:
+        return default
 
 
-def get_closes(ticker):
-    pts = _find_points(fetch_raw(ticker), ticker)
-    if not pts:
-        raise ValueError("Narx qatori topilmadi — --inspect bilan formatni tekshiring")
-    return [float(x) for x in (_num(p) for p in pts) if x is not None]
+def save_json(path, data):
+    with open(path, "w") as f:
+        json.dump(data, f, indent=1, sort_keys=True)
+
+
+def discover_ids(wanted, ids):
+    """Stock/{id}/ ni aylanib, tiker -> ID jadvalini to'ldiradi (bir marta, keyin keshlanadi)."""
+    missing = set(wanted) - set(ids)
+    misses = 0
+    for i in range(1, MAX_ID + 1):
+        if not missing:
+            break
+        try:
+            r = SESSION.get(f"{API}/webapp/v1/stock/Stock/{i}/", timeout=(10, 30))
+            if r.status_code != 200:
+                misses += 1
+                if misses >= 40 and i > 100:      # ketma-ket 40 ta bo'sh ID — tugadi
+                    break
+                continue
+            d = r.json()
+            misses = 0
+            tk = d.get("ticker")
+            if tk:
+                ids[tk] = d["id"]
+                missing.discard(tk)
+        except (requests.RequestException, ValueError):
+            pass
+        time.sleep(0.4)
+    return ids
+
+
+def get_closes(stock_id):
+    """(yopilish narxlari eskidan yangiga, oxirgi sham sanasi)."""
+    j = get_json(f"{API}/app/v1/stock/StockGraphData/",
+                 {"stock": stock_id, "limit": LIMIT, "date": "d"})
+    rows = [r for r in j["results"] if r.get("closing_price") is not None]
+    rows.sort(key=lambda r: r["date_"])           # eskidan yangiga
+    return [float(r["closing_price"]) for r in rows], (rows[-1]["date_"] if rows else "")
 
 
 def ema(values, n):
@@ -107,46 +129,68 @@ def send_tg(text):
                   json={"chat_id": TG_CHAT_ID, "text": text}, timeout=20)
 
 
-def load_state():
-    try:
-        with open(STATE_FILE) as f:
-            return json.load(f)
-    except Exception:
-        return {}
+def check_one(t, ids, st, crosses):
+    if t not in ids:
+        raise KeyError("GoInvest'da tiker topilmadi")
+    closes, last_date = get_closes(ids[t])
+    if len(closes) < LONG + 2:
+        raise ValueError(f"tarix yetarli emas ({len(closes)} sham)")
+    sig = detect_cross(closes)
+    key = f"{sig}:{last_date}"                     # bir xil sham uchun qayta yubormaslik
+    if sig and st.get(t) != key:
+        arrow = "🟢 YUQORIGA (EMA9 > EMA26)" if sig == "up" else "🔴 PASTGA (EMA9 < EMA26)"
+        send_tg(f"EMA Cross: {t}\n{arrow}\nNarx: {closes[-1]:,.2f} ({last_date})")
+        st[t] = key
+        crosses.append(f"{t} {'▲' if sig == 'up' else '▼'}")
+    print(f"{t}: {sig or 'cross yo‘q'} ({last_date}, {len(closes)} sham)")
 
 
-def save_state(st):
-    with open(STATE_FILE, "w") as f:
-        json.dump(st, f)
+def run_pass(tickers, ids, st, crosses):
+    """Ketma-ket 6 ta xatodan keyin to'xtaydi (server o'chiq bo'lsa vaqt ketmasligi uchun)."""
+    failed, streak = [], 0
+    for idx, t in enumerate(tickers):
+        try:
+            check_one(t, ids, st, crosses)
+            streak = 0
+        except KeyError as e:
+            failed.append(t)
+            print(f"{t}: {e}", file=sys.stderr)
+        except Exception as e:
+            failed.append(t)
+            streak += 1
+            print(f"{t}: xato — {e}", file=sys.stderr)
+            if streak >= 6:
+                failed += tickers[idx + 1:]
+                print("Ketma-ket 6 ta xato — to'xtatildi", file=sys.stderr)
+                break
+        time.sleep(PAUSE)
+    return failed
 
 
 def check_all():
-    st = load_state()
-    errors = 0
+    st = load_json(STATE_FILE, {})
+    ids = load_json(IDS_FILE, {})
+    if set(TICKERS) - set(ids):
+        print("Tiker -> ID jadvali to'ldirilmoqda…")
+        ids = discover_ids(TICKERS, ids)
+        save_json(IDS_FILE, ids)
     crosses = []
-    for t in TICKERS:
-        try:
-            closes = get_closes(t)
-            sig = detect_cross(closes)
-            key = f"{sig}:{len(closes)}"          # bir xil sham uchun qayta yubormaslik
-            if sig and st.get(t) != key:
-                arrow = "🟢 YUQORIGA (EMA9 > EMA26)" if sig == "up" else "🔴 PASTGA (EMA9 < EMA26)"
-                send_tg(f"EMA Cross: {t}\n{arrow}\nSo'nggi narx: {closes[-1]:,.2f}")
-                st[t] = key
-                crosses.append(f"{t} {'▲' if sig == 'up' else '▼'}")
-            print(f"{t}: {sig or 'cross yo‘q'}")
-        except Exception as e:
-            errors += 1
-            print(f"{t}: xato — {e}", file=sys.stderr)
-        time.sleep(1.2)                            # API: ~1 so'rov/soniya
-    save_state(st)
-    ok = len(TICKERS) - errors
+    failed = run_pass(TICKERS, ids, st, crosses)
+    if failed and len(failed) < len(TICKERS):
+        retry = [t for t in failed if t in ids]
+        if retry:
+            print(f"Qayta urinish: {len(retry)} ta tiker", file=sys.stderr)
+            time.sleep(30)
+            again = run_pass(retry, ids, st, crosses)
+            failed = [t for t in failed if t not in retry] + again
+    save_json(STATE_FILE, st)
+    ok = len(TICKERS) - len(failed)
     summary = f"✅ EMA tekshiruvi tugadi: {ok}/{len(TICKERS)} aksiya tekshirildi."
     summary += f"\nCross: {', '.join(crosses)}" if crosses else "\nYangi cross yo'q."
-    if errors:
-        summary += f"\n⚠️ Xato: {errors} ta tiker"
+    if failed:
+        summary += f"\n⚠️ Olinmadi: {', '.join(failed)}"
     send_tg(summary)
-    if errors == len(TICKERS):                     # hammasi xato -> Actions "failed" bo'ladi
+    if len(failed) == len(TICKERS):                # hammasi xato -> Actions "failed" bo'ladi
         sys.exit(1)
 
 
@@ -156,7 +200,12 @@ if __name__ == "__main__":
     ap.add_argument("--once", action="store_true")
     a = ap.parse_args()
     if a.inspect:
-        print(json.dumps(fetch_raw(a.inspect), indent=2)[:3000])
+        ids = discover_ids([a.inspect], load_json(IDS_FILE, {}))
+        sid = ids.get(a.inspect)
+        print("ID:", sid)
+        if sid:
+            c, d = get_closes(sid)
+            print(len(c), "sham, oxirgisi", d, c[-5:], "->", detect_cross(c) or "cross yo'q")
     elif a.once:
         check_all()
     else:
