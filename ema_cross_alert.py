@@ -123,6 +123,7 @@ def save_state(st):
 def check_all():
     st = load_state()
     errors = 0
+    crosses = []
     for t in TICKERS:
         try:
             closes = get_closes(t)
@@ -132,12 +133,19 @@ def check_all():
                 arrow = "🟢 YUQORIGA (EMA9 > EMA26)" if sig == "up" else "🔴 PASTGA (EMA9 < EMA26)"
                 send_tg(f"EMA Cross: {t}\n{arrow}\nSo'nggi narx: {closes[-1]:,.2f}")
                 st[t] = key
+                crosses.append(f"{t} {'▲' if sig == 'up' else '▼'}")
             print(f"{t}: {sig or 'cross yo‘q'}")
         except Exception as e:
             errors += 1
             print(f"{t}: xato — {e}", file=sys.stderr)
         time.sleep(1.2)                            # API: ~1 so'rov/soniya
     save_state(st)
+    ok = len(TICKERS) - errors
+    summary = f"✅ EMA tekshiruvi tugadi: {ok}/{len(TICKERS)} aksiya tekshirildi."
+    summary += f"\nCross: {', '.join(crosses)}" if crosses else "\nYangi cross yo'q."
+    if errors:
+        summary += f"\n⚠️ Xato: {errors} ta tiker"
+    send_tg(summary)
     if errors == len(TICKERS):                     # hammasi xato -> Actions "failed" bo'ladi
         sys.exit(1)
 
