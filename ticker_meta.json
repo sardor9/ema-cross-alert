@@ -1,0 +1,537 @@
+{
+ "AGBA": {
+  "id": 98,
+  "name": "Agrobank",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "AGBAP": {
+  "id": 34,
+  "name": "Agrobank",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "AGMK": {
+  "id": 11,
+  "name": "Olmaliq KMK AJ",
+  "sector": "Sanoat"
+ },
+ "AGMKP": {
+  "id": 26,
+  "name": "Olmaliq KMK AJ",
+  "sector": "Sanoat"
+ },
+ "ALSM": {
+  "id": 36,
+  "name": "ALSKOM SUG'URTA",
+  "sector": ""
+ },
+ "ALSMP": {
+  "id": 71,
+  "name": "ALSKOM SUG'URTA",
+  "sector": ""
+ },
+ "ATSZ": {
+  "id": 76,
+  "name": "Andijon tajriba-sinov zavodi AJ",
+  "sector": "Boshqalar"
+ },
+ "BCSK": {
+  "id": 51,
+  "name": "QK Biznes Centr Samarkand",
+  "sector": "Boshqalar"
+ },
+ "BECM": {
+  "id": 46,
+  "name": "Bekobodsement",
+  "sector": "Sanoat"
+ },
+ "BECMP": {
+  "id": 39,
+  "name": "Bekobodsement",
+  "sector": "Sanoat"
+ },
+ "BIOK": {
+  "id": 27,
+  "name": "Biokimyo AJ",
+  "sector": "Sanoat"
+ },
+ "BNGP": {
+  "id": 84,
+  "name": "Buxoroneftgazparmalash AJ",
+  "sector": "Boshqalar"
+ },
+ "BNGPP": {
+  "id": 102,
+  "name": "Buxoroneftgazparmalash AJ",
+  "sector": "Boshqalar"
+ },
+ "BRBN": {
+  "id": 8,
+  "name": "Biznesni rivojlantirish banki",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "BRBNP": {
+  "id": 73,
+  "name": "Biznesni rivojlantirish banki ATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "CBSK": {
+  "id": 61,
+  "name": "Chilonzor buyum savdo kompleksi",
+  "sector": "Boshqalar"
+ },
+ "DORI": {
+  "id": 79,
+  "name": "DORI-DARMON AK",
+  "sector": "Boshqalar"
+ },
+ "FAYM": {
+  "id": 4,
+  "name": "Farg'ona yog'-moy",
+  "sector": "Sanoat"
+ },
+ "GRBK": {
+  "id": 65,
+  "name": "GARANT BANK AJ",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "GRBKP": {
+  "id": 105,
+  "name": "GARANT BANK AJ",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "HMKB": {
+  "id": 109,
+  "name": "Hamkorbank ATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "HMKBP": {
+  "id": 54,
+  "name": "Hamkorbank ATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "INSN": {
+  "id": 92,
+  "name": "INSON ST AJ",
+  "sector": "Boshqalar"
+ },
+ "IPKY": {
+  "id": 62,
+  "name": "AITB Ipak Yo'li",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "IPKYP": {
+  "id": 66,
+  "name": "AITB Ipak Yo'li",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "IPTB": {
+  "id": 103,
+  "name": "Ipoteka-bank ATIB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "IPTBP": {
+  "id": 40,
+  "name": "Ipoteka-bank ATIB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "KASU": {
+  "id": 91,
+  "name": "Kapital sug'urta AJ",
+  "sector": "Sug'urta sohasi"
+ },
+ "KASUP": {
+  "id": 41,
+  "name": "Kapital sug'urta AJ",
+  "sector": "Sug'urta sohasi"
+ },
+ "KPBA": {
+  "id": 86,
+  "name": "Kapitalbank ATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "KSCM": {
+  "id": 74,
+  "name": "Quvasoycement AJ",
+  "sector": "Sanoat"
+ },
+ "KSCMP": {
+  "id": 42,
+  "name": "Quvasoycement AJ",
+  "sector": "Sanoat"
+ },
+ "KUYM": {
+  "id": 48,
+  "name": "Qo'qon yog'-moy AJ",
+  "sector": "Sanoat"
+ },
+ "KUYMP": {
+  "id": 24,
+  "name": "Qo'qon yog'-moy AJ",
+  "sector": "Sanoat"
+ },
+ "KVTS": {
+  "id": 14,
+  "name": "Kvarts",
+  "sector": "Sanoat"
+ },
+ "MCBA": {
+  "id": 18,
+  "name": "Mikrokreditbank ATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "MCBAP": {
+  "id": 5,
+  "name": "Mikrokreditbank ATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "METQ": {
+  "id": 115,
+  "name": "METQ AJ",
+  "sector": "Sanoat"
+ },
+ "NETA": {
+  "id": 75,
+  "name": "Neft ta'minot",
+  "sector": "Energetika"
+ },
+ "OABK": {
+  "id": 114,
+  "name": "Andijon biokimyo zavodi AJ",
+  "sector": "Sanoat"
+ },
+ "OATSP": {
+  "id": 88,
+  "name": "Andijon tajriba-sinov zavodi",
+  "sector": "Boshqalar"
+ },
+ "OAYMP": {
+  "id": 35,
+  "name": "Andijonyog'moy",
+  "sector": "Sanoat"
+ },
+ "OBAN": {
+  "id": 93,
+  "name": "Buxoroneftgazavtonaql AJ",
+  "sector": "Energetika"
+ },
+ "OHDN": {
+  "id": 85,
+  "name": "Ohangaron don",
+  "sector": "Qishloq xo`jaligi"
+ },
+ "OKUM": {
+  "id": 57,
+  "name": "Qo'qon mexanika zavodi AJ",
+  "sector": "Sanoat"
+ },
+ "OKYM": {
+  "id": 110,
+  "name": "Kattaqo'rg'on yog'-moy AJ",
+  "sector": "Boshqalar"
+ },
+ "OMIQ": {
+  "id": 52,
+  "name": "Minora qurish ekspeditsiyasi",
+  "sector": "Qurilish"
+ },
+ "OMKP": {
+  "id": 101,
+  "name": "Muborak paxta tozalash AJ",
+  "sector": "Sanoat"
+ },
+ "OMNM": {
+  "id": 107,
+  "name": "Muborak neft gaz montaj",
+  "sector": "Boshqalar"
+ },
+ "OMTQ": {
+  "id": 50,
+  "name": "Matbuot tarqatuvchi",
+  "sector": "Boshqalar"
+ },
+ "ONGD": {
+  "id": 23,
+  "name": "Namangan dori-darmon",
+  "sector": "Boshqalar"
+ },
+ "ONGT": {
+  "id": 2,
+  "name": "Neft va gaz ishlab chiqarishni ta'mirlash AJ",
+  "sector": "Energetika"
+ },
+ "ONVK": {
+  "id": 56,
+  "name": "Navoiy savdo kompleksi",
+  "sector": "Boshqalar"
+ },
+ "OOCB": {
+  "id": 13,
+  "name": "OCTOBANK AJ",
+  "sector": "Boshqalar"
+ },
+ "OOHS": {
+  "id": 80,
+  "name": "Ohangaron shifer",
+  "sector": "Boshqalar"
+ },
+ "OQNF": {
+  "id": 96,
+  "name": "Qo'qon neftgaz parmalash ishlari",
+  "sector": "Boshqalar"
+ },
+ "OQPI": {
+  "id": 89,
+  "name": "Qashqadaryo parmalash ishlari",
+  "sector": "Sanoat"
+ },
+ "ORFI": {
+  "id": 49,
+  "name": "Orient Finans XATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "ORFIP": {
+  "id": 68,
+  "name": "Orient Finans XATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "OSBM": {
+  "id": 63,
+  "name": "Chimbay may AJ",
+  "sector": "Sanoat"
+ },
+ "OTNGK": {
+  "id": 30,
+  "name": "Toshneftegazqurilish",
+  "sector": "Boshqalar"
+ },
+ "OUSA": {
+  "id": 53,
+  "name": "O'zbekiston shampani AJ",
+  "sector": "Sanoat"
+ },
+ "OUYM": {
+  "id": 12,
+  "name": "Urganch yog'-moy AJ",
+  "sector": "Boshqalar"
+ },
+ "OUZA": {
+  "id": 94,
+  "name": "O'zagrosug'urta AJ",
+  "sector": "Sug'urta sohasi"
+ },
+ "OUZAP": {
+  "id": 20,
+  "name": "O'zagrosug'urta AJ",
+  "sector": "Sug'urta sohasi"
+ },
+ "OYGY": {
+  "id": 64,
+  "name": "Yangiyo'l yog'-moy AJ",
+  "sector": "Sanoat"
+ },
+ "OYGYP": {
+  "id": 7,
+  "name": "Yangiyo'l yog'-moy AJ",
+  "sector": "Sanoat"
+ },
+ "QATT": {
+  "id": 82,
+  "name": "Qashqadaryo texnologik transport AJ",
+  "sector": "Boshqalar"
+ },
+ "QZSM": {
+  "id": 15,
+  "name": "QzSMNT",
+  "sector": "Sanoat"
+ },
+ "SQBN": {
+  "id": 99,
+  "name": "O'zsanoatqurilishbank ATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "SQBNP": {
+  "id": 3,
+  "name": "O'zsanoatqurilishbank",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "SUPI": {
+  "id": 72,
+  "name": "Surxon parmalash ishlari AJ",
+  "sector": "Sanoat"
+ },
+ "SUPIP": {
+  "id": 69,
+  "name": "Surxon parmalash ishlari AJ",
+  "sector": "Sanoat"
+ },
+ "TNBN": {
+  "id": 108,
+  "name": "Turonbank ATB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "TNBNP": {
+  "id": 47,
+  "name": "Turonbank",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "TRSB": {
+  "id": 70,
+  "name": "Trastbank XAB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "TRSBP": {
+  "id": 45,
+  "name": "Trastbank XAB",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "UGSR": {
+  "id": 17,
+  "name": "Urganch sharob AJ",
+  "sector": "Boshqalar"
+ },
+ "UGYMP": {
+  "id": 6,
+  "name": "Urganch yog'-moy AJ",
+  "sector": "Boshqalar"
+ },
+ "UNVB": {
+  "id": 87,
+  "name": "Universal bank",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "UPAT": {
+  "id": 83,
+  "name": "O'zparavtotrans AJ",
+  "sector": "Boshqalar"
+ },
+ "UPATP": {
+  "id": 90,
+  "name": "O'zparavtotrans AJ",
+  "sector": "Boshqalar"
+ },
+ "UPOS": {
+  "id": 100,
+  "name": "O'zbekiston pochtasi AJ",
+  "sector": "Aloqa va AT"
+ },
+ "UQEQ": {
+  "id": 9,
+  "name": "O'zQEQ AJ",
+  "sector": "Boshqalar"
+ },
+ "URGK": {
+  "id": 106,
+  "name": "Urganchkormmash AJ",
+  "sector": "Sanoat"
+ },
+ "URGKP": {
+  "id": 44,
+  "name": "Urganchkormmash AJ",
+  "sector": "Sanoat"
+ },
+ "URTS": {
+  "id": 58,
+  "name": "O'zRTXB",
+  "sector": "Boshqalar"
+ },
+ "UTGA": {
+  "id": 95,
+  "name": "O'ztransgaz AJ",
+  "sector": "Energetika"
+ },
+ "UTGAP": {
+  "id": 16,
+  "name": "O'ztransgaz AJ",
+  "sector": "Energetika"
+ },
+ "UZAL": {
+  "id": 31,
+  "name": "O'zagrolizing AJ",
+  "sector": "Boshqalar"
+ },
+ "UZALP": {
+  "id": 55,
+  "name": "O'zagrolizing AJ",
+  "sector": "Boshqalar"
+ },
+ "UZGFP": {
+  "id": 10,
+  "name": "O'zbekgeofizika AJ",
+  "sector": "Boshqalar"
+ },
+ "UZHM": {
+  "id": 78,
+  "name": "O'zbekkimyomash zavodi",
+  "sector": "Boshqalar"
+ },
+ "UZIN": {
+  "id": 38,
+  "name": "O'zbekinvest EISK AJ",
+  "sector": "Sug'urta sohasi"
+ },
+ "UZIR": {
+  "id": 25,
+  "name": "O'zbekko'mir",
+  "sector": "Energetika"
+ },
+ "UZIRP": {
+  "id": 19,
+  "name": "O'zbekko'mir AJ",
+  "sector": "Energetika"
+ },
+ "UZMK": {
+  "id": 97,
+  "name": "O'zmetkombinat",
+  "sector": "Sanoat"
+ },
+ "UZMKP": {
+  "id": 81,
+  "name": "O'zmetkombinat AJ",
+  "sector": "Sanoat"
+ },
+ "UZMT": {
+  "id": 77,
+  "name": "UzAuto Motors AJ",
+  "sector": "Sanoat"
+ },
+ "UZNG": {
+  "id": 32,
+  "name": "O'zbekneftgaz AJ",
+  "sector": "Sanoat"
+ },
+ "UZNGP": {
+  "id": 33,
+  "name": "O'zbekneftgaz AJ",
+  "sector": "Sanoat"
+ },
+ "UZPN": {
+  "id": 112,
+  "name": "O'zpartamponaj",
+  "sector": "Sanoat"
+ },
+ "UZTL": {
+  "id": 21,
+  "name": "O'zbektelekom",
+  "sector": "Aloqa va AT"
+ },
+ "UZTLP": {
+  "id": 22,
+  "name": "O'zbektelekom",
+  "sector": "Aloqa va AT"
+ },
+ "XKBK": {
+  "id": 111,
+  "name": "Xalq Banki",
+  "sector": "Moliyaviy xizmatlar"
+ },
+ "XOSQ": {
+  "id": 59,
+  "name": "Xorazmsuvqurilish AJ",
+  "sector": "Qurilish"
+ },
+ "XTTB": {
+  "id": 67,
+  "name": "XTTB AJ",
+  "sector": "Aloqa va AT"
+ }
+}
