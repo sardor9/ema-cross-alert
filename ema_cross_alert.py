@@ -26,9 +26,10 @@ SERIES_N = 120                       # veb-grafik uchun oxirgi shamlar soni
 CHECK_EVERY = 24 * 3600              # faqat doimiy rejim uchun
 STATE_FILE = "ema_state.json"        # takroriy alertni oldini olish
 META_FILE = "ticker_meta.json"       # tiker -> {id, name, sector}
+OVERRIDES_FILE = "ticker_overrides.json"  # qo'lda ID: {"UZINP": 57}
 DATA_FILE = "docs/data.json"         # veb-sahifa o'qiydigan fayl
 API = "https://api.goinvest.uz/api"
-MAX_ID = 400
+MAX_ID = 600
 PAUSE = 0.7
 TRIES = 4
 TG_TOKEN = os.getenv("TG_TOKEN", "")
@@ -70,30 +71,67 @@ def save_json(path, data, **kw):
 
 
 def discover_ids(wanted, meta):
-    """Stock/{id}/ ni aylanib, tiker -> {id, name, sector} jadvalini to'ldiradi (bir marta, keyin keshlanadi)."""
+    """Stock/{id}/ ni aylanib, tiker -> {id, name, sector} jadvalini to'ldiradi."""
     missing = set(wanted) - set(meta)
-    misses = 0
+    known = {v["id"] for v in meta.values() if isinstance(v, dict) and "id" in v}
+    misses, stats, last_ok = 0, {}, 0
     for i in range(1, MAX_ID + 1):
         if not missing:
             break
-        try:
-            r = SESSION.get(f"{API}/webapp/v1/stock/Stock/{i}/", timeout=(10, 30))
-            if r.status_code != 200:
-                misses += 1
-                if misses >= 40 and i > 100:
-                    break
-                continue
-            d = r.json()
+        if i in known:
             misses = 0
-            tk = d.get("ticker")
-            if tk:
-                meta[tk] = {"id": d["id"],
-                            "name": d.get("short_title") or d.get("title") or tk,
-                            "sector": d.get("category") or ""}
-                missing.discard(tk)
-        except (requests.RequestException, ValueError):
-            pass
+            continue
+        r = None
+        for a in range(3):                          # 429/5xx bo'lsa qayta uriniladi
+            try:
+                r = SESSION.get(f"{API}/webapp/v1/stock/Stock/{i}/", timeout=(10, 30))
+            except requests.RequestException:
+                r = None
+                time.sleep(3)
+                continue
+            if r.status_code in (429, 500, 502, 503, 504):
+                time.sleep(4 * (a + 1))
+                continue
+            break
+        code = r.status_code if r is not None else "xato"
+        stats[code] = stats.get(code, 0) + 1
+        if code != 200:
+            if code == 404:
+                misses += 1
+                if misses >= 80 and i > 100:        # ketma-ket 80 ta bo'sh ID — tugadi
+                    break
+            continue
+        try:
+            d = r.json()
+        except ValueError:
+            continue
+        misses, last_ok = 0, i
+        tk = d.get("ticker")
+        if tk:
+            meta[tk] = {"id": d["id"],
+                        "name": d.get("short_title") or d.get("title") or tk,
+                        "sector": d.get("category") or ""}
+            missing.discard(tk)
+            print(f"  ID {i}: {tk}")
         time.sleep(0.4)
+    print(f"ID qidirish tugadi: oxirgi topilgan ID {last_ok}, status kodlar {stats}")
+    if missing:
+        print("Topilmadi:", ", ".join(sorted(missing)))
+    return meta
+
+
+def apply_overrides(meta):
+    """ticker_overrides.json dagi qo'lda berilgan ID'larni qo'shadi."""
+    for t, i in load_json(OVERRIDES_FILE, {}).items():
+        if t in meta and meta[t].get("id") == i:
+            continue
+        name = t
+        try:
+            d = get_json(f"{API}/webapp/v1/stock/Stock/{i}/")
+            name = d.get("short_title") or d.get("title") or t
+        except Exception:
+            pass
+        meta[t] = {"id": int(i), "name": name, "sector": ""}
     return meta
 
 
@@ -204,10 +242,19 @@ def check_all():
     st = load_json(STATE_FILE, {})
     meta = load_json(META_FILE, {})
     meta = {k: v for k, v in meta.items() if isinstance(v, dict)}   # eski formatni tashlab yuboradi
-    if set(TICKERS) - set(meta):
+    meta = apply_overrides(meta)
+    missing = sorted(set(TICKERS) - set(meta))
+    scan = meta.get("_scan", {})
+    today = datetime.date.today()
+    try:
+        age = (today - datetime.date.fromisoformat(scan.get("date", "2000-01-01"))).days
+    except ValueError:
+        age = 999
+    if missing and (scan.get("missing") != missing or age >= 7):   # topilmaganlar uchun haftasiga bir marta
         print("Tiker jadvali to'ldirilmoqda…")
         meta = discover_ids(TICKERS, meta)
-        save_json(META_FILE, meta, indent=1)
+        meta["_scan"] = {"date": today.isoformat(), "missing": sorted(set(TICKERS) - set(meta))}
+    save_json(META_FILE, meta, indent=1)
     crosses, items = [], {}
     failed = run_pass(TICKERS, meta, st, crosses, items)
     if failed and len(failed) < len(TICKERS):
