@@ -29,7 +29,7 @@ META_FILE = "ticker_meta.json"       # tiker -> {id, name, sector}
 OVERRIDES_FILE = "ticker_overrides.json"  # qo'lda ID: {"UZINP": 57}
 DATA_FILE = "docs/data.json"         # veb-sahifa o'qiydigan fayl
 API = "https://api.goinvest.uz/api"
-MAX_ID = 600
+MAX_ID = 800
 PAUSE = 0.7
 TRIES = 4
 TG_TOKEN = os.getenv("TG_TOKEN", "")
@@ -96,9 +96,10 @@ def discover_ids(wanted, meta):
         code = r.status_code if r is not None else "xato"
         stats[code] = stats.get(code, 0) + 1
         if code != 200:
+            time.sleep(0.2)
             if code == 404:
                 misses += 1
-                if misses >= 80 and i > 100:        # ketma-ket 80 ta bo'sh ID — tugadi
+                if misses >= 150 and i > 100:       # ketma-ket 150 ta bo'sh ID — tugadi
                     break
             continue
         try:
@@ -140,6 +141,9 @@ def get_closes(stock_id):
     j = get_json(f"{API}/app/v1/stock/StockGraphData/",
                  {"stock": stock_id, "limit": LIMIT, "date": "d"})
     rows = [r for r in j["results"] if r.get("closing_price") is not None]
+    traded = [r for r in rows if r.get("volume")]      # savdosiz (volume yo'q) shamlar, masalan bugungi bo'sh sham
+    if len(traded) >= LONG + 2:
+        rows = traded
     rows.sort(key=lambda r: r["date_"])
     return [float(r["closing_price"]) for r in rows], [r["date_"] for r in rows]
 
