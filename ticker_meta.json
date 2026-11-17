@@ -19,6 +19,16 @@
   "name": "Olmaliq KMK AJ",
   "sector": "Sanoat"
  },
+ "ALKB": {
+  "id": 410,
+  "name": "AT Aloqabank",
+  "sector": ""
+ },
+ "ALKBP": {
+  "id": 416,
+  "name": "Aloqabank",
+  "sector": ""
+ },
  "ALSM": {
   "id": 36,
   "name": "ALSKOM SUG'URTA",
@@ -74,6 +84,11 @@
   "name": "Biznesni rivojlantirish banki ATB",
   "sector": "Moliyaviy xizmatlar"
  },
+ "BTRL": {
+  "id": 169,
+  "name": "Boshtransloyiha AJ",
+  "sector": "Sanoat"
+ },
  "CBSK": {
   "id": 61,
   "name": "Chilonzor buyum savdo kompleksi",
@@ -87,6 +102,11 @@
  "FAYM": {
   "id": 4,
   "name": "Farg'ona yog'-moy",
+  "sector": "Sanoat"
+ },
+ "FAYMP": {
+  "id": 163,
+  "name": "Farg'ona yog'-moy AJ",
   "sector": "Sanoat"
  },
  "GRBK": {
@@ -143,6 +163,16 @@
   "id": 41,
   "name": "Kapital sug'urta AJ",
   "sector": "Sug'urta sohasi"
+ },
+ "KFSK": {
+  "id": 421,
+  "name": "Kafolat sug'urta kompaniyasi",
+  "sector": ""
+ },
+ "KFSKP": {
+  "id": 527,
+  "name": "Kafolat sug'urta",
+  "sector": ""
  },
  "KPBA": {
   "id": 86,
@@ -274,6 +304,11 @@
   "name": "Ohangaron shifer",
   "sector": "Boshqalar"
  },
+ "OOHSP": {
+  "id": 164,
+  "name": "Ohangaronshifer AJ",
+  "sector": "Boshqalar"
+ },
  "OQNF": {
   "id": 96,
   "name": "Qo'qon neftgaz parmalash ishlari",
@@ -334,6 +369,11 @@
   "name": "Yangiyo'l yog'-moy AJ",
   "sector": "Sanoat"
  },
+ "PLST": {
+  "id": 460,
+  "name": "Portlatishsanoat",
+  "sector": ""
+ },
  "QATT": {
   "id": 82,
   "name": "Qashqadaryo texnologik transport AJ",
@@ -363,6 +403,16 @@
   "id": 69,
   "name": "Surxon parmalash ishlari AJ",
   "sector": "Sanoat"
+ },
+ "TGPG": {
+  "id": 170,
+  "name": "Tashgiprogor AJ",
+  "sector": "Boshqalar"
+ },
+ "TMYS": {
+  "id": 166,
+  "name": "TEMIRYO'L-SUG'URTA AJ",
+  "sector": ""
  },
  "TNBN": {
   "id": 108,
@@ -444,6 +494,11 @@
   "name": "O'ztransgaz AJ",
   "sector": "Energetika"
  },
+ "UVGT": {
+  "id": 165,
+  "name": "O'ZVAGONTA'MIR",
+  "sector": ""
+ },
  "UZAL": {
   "id": 31,
   "name": "O'zagrolizing AJ",
@@ -452,6 +507,11 @@
  "UZALP": {
   "id": 55,
   "name": "O'zagrolizing AJ",
+  "sector": "Boshqalar"
+ },
+ "UZGF": {
+  "id": 173,
+  "name": "O'zbekgeofizika AJ",
   "sector": "Boshqalar"
  },
  "UZGFP": {
@@ -468,6 +528,11 @@
   "id": 38,
   "name": "O'zbekinvest EISK AJ",
   "sector": "Sug'urta sohasi"
+ },
+ "UZINP": {
+  "id": 168,
+  "name": "O'zbekinvest EISK AJ",
+  "sector": ""
  },
  "UZIR": {
   "id": 25,
@@ -493,6 +558,11 @@
   "id": 77,
   "name": "UzAuto Motors AJ",
   "sector": "Sanoat"
+ },
+ "UZNF": {
+  "id": 566,
+  "name": "UzNIF",
+  "sector": ""
  },
  "UZNG": {
   "id": 32,
@@ -533,5 +603,11 @@
   "id": 67,
   "name": "XTTB AJ",
   "sector": "Aloqa va AT"
+ },
+ "_scan": {
+  "date": "2026-11-17",
+  "missing": [
+   "NGQS"
+  ]
  }
 }
