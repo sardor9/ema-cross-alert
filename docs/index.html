@@ -15,6 +15,13 @@ h1{font-size:22px;margin:0}.sub{color:var(--mut);font-size:13px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
 .st{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
 .st b{display:block;font-size:24px;line-height:1.1}.st span{color:var(--mut);font-size:12px}
+.acts{display:flex;gap:8px;align-items:center}
+.btn{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.btn:hover{border-color:var(--ac)}.btn[disabled]{opacity:.6;cursor:default}
+.btn.p{background:var(--ac);border-color:var(--ac);color:#fff}
+@keyframes sp{to{transform:rotate(360deg)}}.spin{display:inline-block;animation:sp .8s linear infinite}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:20;max-width:90vw;text-align:center}
+#toast.on{opacity:1}
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 input,select{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:9px 12px;font:inherit}
 input{flex:1;min-width:150px}
@@ -50,7 +57,9 @@ footer{color:var(--mut);font-size:12px;margin:16px 0 8px;text-align:center}
 <div class="w">
   <header>
     <div><h1>EMA Cross · UZSE aksiyalari</h1><div class="sub" id="meta">Yuklanmoqda…</div></div>
+    <div class="acts"><a class="btn" id="gh" href="#" target="_blank" rel="noopener" style="display:none" title="GitHub'da yangi tekshiruvni ishga tushirish">⚙ Actions</a><button class="btn p" id="rf"><span id="ri">⟳</span> Yangilash</button></div>
   </header>
+  <div id="toast"></div>
   <div class="banner" id="banner"></div>
   <div class="stats" id="stats"></div>
   <div class="bar">
@@ -81,9 +90,23 @@ const f2=x=>Number(x).toLocaleString("en-US",{maximumFractionDigits:2});
 const dm=d=>d?d.slice(8,10)+"."+d.slice(5,7)+"."+d.slice(2,4):"";
 const agoTxt=n=>n===0?"bugun":n+" sham oldin";
 
-fetch("data.json?"+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(init).catch(()=>{
-  $("#meta").textContent="Maʼlumot topilmadi";
-  $("#empty").style.display="block";$("#empty").innerHTML="docs/data.json hali yaratilmagan.<br>GitHub → Actions → <b>EMA Cross Alert</b> → Run workflow bosing, tugagach sahifani yangilang."});
+let toastT;
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("on"),2600)}
+function load(manual){
+  const b=$("#rf"),ic=$("#ri");b.disabled=true;ic.classList.add("spin");
+  return fetch("data.json?"+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{
+    const same=D&&D.updated===d.updated;
+    init(d);
+    if(manual)toast(same?"Yangi maʼlumot yoʻq — oxirgi yangilanish shu":"✅ Maʼlumot yangilandi")
+  }).catch(()=>{
+    if(!D){$("#meta").textContent="Maʼlumot topilmadi";$("#empty").style.display="block";$("#empty").innerHTML="docs/data.json hali yaratilmagan.<br>GitHub → Actions → <b>EMA Cross Alert</b> → Run workflow bosing, tugagach sahifani yangilang."}
+    else if(manual)toast("Yuklab boʻlmadi, keyinroq urinib koʻring")
+  }).finally(()=>{b.disabled=false;ic.classList.remove("spin")})}
+$("#rf").onclick=()=>load(true);
+setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&D&&Date.now()-new Date(D.updated)>6*3600*1000)load(false)});
+if(location.hostname.endsWith(".github.io")){const u=location.hostname.split(".")[0],r=location.pathname.split("/")[1];if(u&&r){const g=$("#gh");g.href=`https://github.com/${u}/${r}/actions/workflows/ema-cross.yml`;g.style.display=""}}
+load(false);
 
 function init(d){
   D=d; const t=new Date(d.updated);
