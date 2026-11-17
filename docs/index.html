@@ -15,13 +15,6 @@ h1{font-size:22px;margin:0}.sub{color:var(--mut);font-size:13px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
 .st{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
 .st b{display:block;font-size:24px;line-height:1.1}.st span{color:var(--mut);font-size:12px}
-.acts{display:flex;gap:8px;align-items:center}
-.btn{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;text-decoration:none;display:inline-flex;gap:6px;align-items:center}
-.btn:hover{border-color:var(--ac)}.btn[disabled]{opacity:.6;cursor:default}
-.btn.p{background:var(--ac);border-color:var(--ac);color:#fff}
-@keyframes sp{to{transform:rotate(360deg)}}.spin{display:inline-block;animation:sp .8s linear infinite}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:20;max-width:90vw;text-align:center}
-#toast.on{opacity:1}
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 input,select{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:9px 12px;font:inherit}
 input{flex:1;min-width:150px}
@@ -49,6 +42,12 @@ svg text{font-size:11px;fill:var(--mut)}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--mut);margin:8px 0}.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .cw{position:relative}#tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 9px;font-size:12px;display:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:12px}.kv div{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--mut)}.kv b{display:block;color:var(--tx);font-size:15px}
+.star{cursor:pointer;color:var(--mut);margin-right:6px;font-size:16px;user-select:none}.star.on{color:var(--wa)}.star:hover{color:var(--wa)}
+.tg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-left:auto}.tg button{background:none;border:0;color:var(--mut);padding:4px 11px;font:inherit;font-size:12px;cursor:pointer}.tg button.on{background:var(--ac);color:#fff}
+.lg{display:flex;align-items:center;flex-wrap:wrap;gap:14px}
+.pfb{margin-top:14px;border-top:1px solid var(--bd);padding-top:12px}.pfr{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:8px}
+.pfr label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:4px}.pfr input{width:130px}
+.btn{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:9px 14px;font:inherit;cursor:pointer}.btn.p{background:var(--ac);border-color:var(--ac);color:#fff}
 footer{color:var(--mut);font-size:12px;margin:16px 0 8px;text-align:center}
 @media (max-width:640px){.hide-s{display:none}}
 </style>
@@ -57,9 +56,7 @@ footer{color:var(--mut);font-size:12px;margin:16px 0 8px;text-align:center}
 <div class="w">
   <header>
     <div><h1>EMA Cross · UZSE aksiyalari</h1><div class="sub" id="meta">Yuklanmoqda…</div></div>
-    <div class="acts"><a class="btn" id="gh" href="#" target="_blank" rel="noopener" style="display:none" title="GitHub'da yangi tekshiruvni ishga tushirish">⚙ Actions</a><button class="btn p" id="rf"><span id="ri">⟳</span> Yangilash</button></div>
   </header>
-  <div id="toast"></div>
   <div class="banner" id="banner"></div>
   <div class="stats" id="stats"></div>
   <div class="bar">
@@ -83,37 +80,34 @@ footer{color:var(--mut);font-size:12px;margin:16px 0 8px;text-align:center}
 
 <script>
 const $=s=>document.querySelector(s);
-const FILTERS=[["all","Hammasi"],["up","Yangi ▲"],["down","Yangi ▼"],["above","EMA yuqorida"],["below","EMA pastda"]];
+const FILTERS=[["all","Hammasi"],["up","Yangi ▲"],["down","Yangi ▼"],["above","EMA yuqorida"],["below","EMA pastda"],["fav","⭐ Sevimlilar"],["pf","💼 Portfel"]];
 const FRESH=3; let D=null, filt="all";
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const f2=x=>Number(x).toLocaleString("en-US",{maximumFractionDigits:2});
 const dm=d=>d?d.slice(8,10)+"."+d.slice(5,7)+"."+d.slice(2,4):"";
 const agoTxt=n=>n===0?"bugun":n+" sham oldin";
 
-let toastT;
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("on"),2600)}
-function load(manual){
-  const b=$("#rf"),ic=$("#ri");b.disabled=true;ic.classList.add("spin");
-  return fetch("data.json?"+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{
-    const same=D&&D.updated===d.updated;
-    init(d);
-    if(manual)toast(same?"Yangi maʼlumot yoʻq — oxirgi yangilanish shu":"✅ Maʼlumot yangilandi")
-  }).catch(()=>{
-    if(!D){$("#meta").textContent="Maʼlumot topilmadi";$("#empty").style.display="block";$("#empty").innerHTML="docs/data.json hali yaratilmagan.<br>GitHub → Actions → <b>EMA Cross Alert</b> → Run workflow bosing, tugagach sahifani yangilang."}
-    else if(manual)toast("Yuklab boʻlmadi, keyinroq urinib koʻring")
-  }).finally(()=>{b.disabled=false;ic.classList.remove("spin")})}
-$("#rf").onclick=()=>load(true);
-setInterval(()=>{if(!document.hidden)load(false)},10*60*1000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&D&&Date.now()-new Date(D.updated)>6*3600*1000)load(false)});
-if(location.hostname.endsWith(".github.io")){const u=location.hostname.split(".")[0],r=location.pathname.split("/")[1];if(u&&r){const g=$("#gh");g.href=`https://github.com/${u}/${r}/actions/workflows/ema-cross.yml`;g.style.display=""}}
-load(false);
+const favs=()=>store.get("fav",[]),pfs=()=>store.get("pf",{});
+function toggleFav(t){const f=favs(),i=f.indexOf(t);i<0?f.push(t):f.splice(i,1);store.set("fav",f);render()}
+function plOf(x){const h=pfs()[x.t];if(!h||!h.qty||!h.buy)return null;const cost=h.buy*h.qty,val=x.last*h.qty;return{cost,val,pl:val-cost,pct:(val/cost-1)*100}}
+const sg=n=>(n>0?"+":"")+f2(n);
+function buildStats(){
+  const d=D,it=d.items,fu=it.filter(x=>x.cross==="up"&&x.ago<=FRESH).length,fd=it.filter(x=>x.cross==="down"&&x.ago<=FRESH).length;
+  const cards=[[it.length,"aksiya kuzatilmoqda",""],[it.filter(x=>x.above).length,`EMA${d.short} > EMA${d.long}`,"up"],[fu,`yangi ▲ (${FRESH} shamgacha)`,"up"],[fd,`yangi ▼ (${FRESH} shamgacha)`,"dn"]];
+  const ps=it.map(plOf).filter(Boolean);
+  if(ps.length){const cost=ps.reduce((a,p)=>a+p.cost,0),pl=ps.reduce((a,p)=>a+p.pl,0);cards.push([sg(pl/cost*100)+"%",`💼 Portfel P/L · ${sg(pl)} soʻm`,pl>=0?"up":"dn"])}
+  $("#stats").innerHTML=cards.map(([n,l,c])=>`<div class="st"><b class="${c}">${n}</b><span>${l}</span></div>`).join("")}
+
+function load(){
+  return fetch("data.json?"+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(init).catch(()=>{
+    if(!D){$("#meta").textContent="Maʼlumot topilmadi";$("#empty").style.display="block";$("#empty").innerHTML="docs/data.json hali yaratilmagan.<br>GitHub → Actions → <b>EMA Cross Alert</b> → Run workflow bosing, tugagach sahifani yangilang."}})}
+setInterval(()=>{if(!document.hidden)load()},30*60*1000);   // sahifa ochiq tursa, jimgina yangilab turadi
+load();
 
 function init(d){
   D=d; const t=new Date(d.updated);
   $("#meta").textContent=`EMA ${d.short}/${d.long} · yangilangan: ${t.toLocaleString("ru-RU",{timeZone:"Asia/Tashkent",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})} (Toshkent)`+(d.failed&&d.failed.length?` · olinmadi: ${d.failed.length}`:"");
-  const it=d.items, fu=it.filter(x=>x.cross==="up"&&x.ago<=FRESH).length, fd=it.filter(x=>x.cross==="down"&&x.ago<=FRESH).length;
-  $("#stats").innerHTML=[[it.length,"aksiya kuzatilmoqda",""],[it.filter(x=>x.above).length,`EMA${d.short} > EMA${d.long}`,"up"],[fu,`yangi ▲ (${FRESH} shamgacha)`,"up"],[fd,`yangi ▼ (${FRESH} shamgacha)`,"dn"]]
-    .map(([n,l,c])=>`<div class="st"><b class="${c}">${n}</b><span>${l}</span></div>`).join("");
+  const it=d.items;buildStats();
   $("#seg").className="seg";
   $("#seg").innerHTML=FILTERS.map(([k,l])=>`<button data-k="${k}" class="${k===filt?"on":""}">${l}</button>`).join("");
   $("#seg").onclick=e=>{const k=e.target.dataset.k;if(k){filt=k;[...$("#seg").children].forEach(b=>b.classList.toggle("on",b.dataset.k===k));render()}};
@@ -126,7 +120,7 @@ function init(d){
 function pass(x){
   const q=$("#q").value.trim().toLowerCase();
   if(q&&!(x.t.toLowerCase().includes(q)||(x.name||"").toLowerCase().includes(q)))return false;
-  return filt==="all"||(filt==="up"&&x.cross==="up"&&x.ago<=FRESH)||(filt==="down"&&x.cross==="down"&&x.ago<=FRESH)||(filt==="above"&&x.above)||(filt==="below"&&!x.above)}
+  return filt==="all"||(filt==="up"&&x.cross==="up"&&x.ago<=FRESH)||(filt==="down"&&x.cross==="down"&&x.ago<=FRESH)||(filt==="above"&&x.above)||(filt==="below"&&!x.above)||(filt==="fav"&&favs().includes(x.t))||(filt==="pf"&&!!plOf(x))}
 
 function spark(x,n=50){
   const c=x.c.slice(-n),s=x.s.slice(-n),l=x.l.slice(-n),all=c.concat(s,l),mn=Math.min(...all),mx=Math.max(...all),W=110,H=30,k=mx-mn||1;
@@ -135,37 +129,53 @@ function spark(x,n=50){
 
 function render(){
   const so=$("#sort").value;let a=D.items.filter(pass);
-  const fr=x=>x.cross?x.ago:1e9;
+  const fr=x=>x.cross?x.ago:1e9,fv=favs();
   a.sort((p,q)=>so==="tk"?p.t.localeCompare(q.t):so==="chg"?q.chg-p.chg:so==="chga"?p.chg-q.chg:so==="price"?q.last-p.last:fr(p)-fr(q)||p.t.localeCompare(q.t));
   $("#tb").innerHTML=a.map(x=>{const fresh=x.cross&&x.ago<=FRESH;
-    return`<tr class="${fresh?"fresh":""}" data-t="${x.t}"><td><div class="tk">${x.t}${x.stale?' <span class="mut" title="eski maʼlumot">⏳</span>':""}</div><div class="nm">${x.name||""}</div></td>
-    <td>${f2(x.last)}</td><td class="${x.chg>=0?"up":"dn"}">${x.chg>0?"+":""}${x.chg.toFixed(2)}%</td><td class="hide-s">${spark(x)}</td>
+    return`<tr class="${fresh?"fresh":""}" data-t="${x.t}"><td><div class="tk"><span class="star ${fv.includes(x.t)?"on":""}" data-s="${x.t}">${fv.includes(x.t)?"★":"☆"}</span>${x.t}${x.stale?' <span class="mut" title="eski maʼlumot">⏳</span>':""}</div><div class="nm">${x.name||""}</div></td>
+    <td>${f2(x.last)}${(()=>{const p=plOf(x);return p?`<div class="${p.pl>=0?"up":"dn"}" style="font-size:12px">${sg(p.pct)}%</div>`:""})()}</td><td class="${x.chg>=0?"up":"dn"}">${x.chg>0?"+":""}${x.chg.toFixed(2)}%</td><td class="hide-s">${spark(x)}</td>
     <td><span class="badge ${x.above?"up":"dn"}">${x.above?"▲ yuqorida":"▼ pastda"}</span></td>
     <td>${x.cross?`<span class="${x.cross==="up"?"up":"dn"}">${x.cross==="up"?"▲":"▼"}</span> ${agoTxt(x.ago)}<div class="mut" style="font-size:12px">${dm(x.cross_date)}</div>`:'<span class="mut">—</span>'}</td></tr>`}).join("");
   $("#empty").style.display=a.length?"none":"block";if(!a.length)$("#empty").textContent="Hech narsa topilmadi"}
 
-$("#tb").onclick=e=>{const tr=e.target.closest("tr");if(tr)openM(D.items.find(x=>x.t===tr.dataset.t))};
+$("#tb").onclick=e=>{if(e.target.classList.contains("star")){toggleFav(e.target.dataset.s);return}const tr=e.target.closest("tr");if(tr)openM(D.items.find(x=>x.t===tr.dataset.t))};
 $("#modal").onclick=e=>{if(e.target.id==="modal"||e.target.classList.contains("x"))$("#modal").classList.remove("on")};
 document.onkeydown=e=>{if(e.key==="Escape")$("#modal").classList.remove("on")};
 
-function openM(x){
-  const W=800,H=320,L=8,R=58,T=10,B=24,c=x.c,s=x.s,l=x.l,n=c.length,all=c.concat(s,l),mn0=Math.min(...all),mx0=Math.max(...all),pad=(mx0-mn0)*.06||1,mn=mn0-pad,mx=mx0+pad;
-  const X=i=>L+i/(n-1)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B),P=a=>a.map((v,i)=>X(i).toFixed(1)+","+Y(v).toFixed(1)).join(" ");
-  let dots="";for(let i=Math.max(1,0);i<n;i++){const up=s[i-1]<=l[i-1]&&s[i]>l[i],dn=s[i-1]>=l[i-1]&&s[i]<l[i];if(up||dn)dots+=`<circle cx="${X(i)}" cy="${Y(s[i])}" r="5" fill="${up?"var(--up)":"var(--dn)"}" stroke="var(--card)" stroke-width="2"/>`}
+function openM(x,mode){
+  const hasC=Array.isArray(x.o);mode=hasC?(mode||store.get("mode","candle")):"line";
+  const W=800,L=8,R=58,T=10,PH=250,GAP=10,VH=60,B=24,H=T+PH+GAP+VH+B,c=x.c,s=x.s,l=x.l,n=c.length,candle=mode==="candle";
+  const lo=candle?x.lw:c,hi=candle?x.hi:c,mn0=Math.min(...lo,...s,...l),mx0=Math.max(...hi,...s,...l),pad=(mx0-mn0)*.06||1,mn=mn0-pad,mx=mx0+pad;
+  const step=(W-L-R)/n,X=i=>L+(i+.5)*step,Y=v=>T+(1-(v-mn)/(mx-mn))*PH,P=a=>a.map((v,i)=>X(i).toFixed(1)+","+Y(v).toFixed(1)).join(" "),bw=Math.max(1.5,step*.68);
+  const col=i=>hasC?(c[i]>=x.o[i]?"var(--up)":"var(--dn)"):"var(--mut)";
+  let body="";
+  if(candle)for(let i=0;i<n;i++){const y1=Y(Math.max(x.o[i],c[i])),y2=Y(Math.min(x.o[i],c[i]));body+=`<line x1="${X(i)}" x2="${X(i)}" y1="${Y(x.hi[i])}" y2="${Y(x.lw[i])}" stroke="${col(i)}"/><rect x="${X(i)-bw/2}" y="${y1}" width="${bw}" height="${Math.max(1,y2-y1)}" fill="${col(i)}"/>`}
+  else body=`<polyline fill="none" stroke="var(--tx)" stroke-width="1.3" points="${P(c)}"/>`;
+  const vmax=Math.max(...x.v,1),vy=T+PH+GAP;let vol="";
+  if(x.v)for(let i=0;i<n;i++){const h=x.v[i]/vmax*VH;vol+=`<rect x="${X(i)-bw/2}" y="${vy+VH-h}" width="${bw}" height="${h}" fill="${col(i)}" opacity=".5"/>`}
+  let dots="";for(let i=1;i<n;i++){const up=s[i-1]<=l[i-1]&&s[i]>l[i],dn=s[i-1]>=l[i-1]&&s[i]<l[i];if(up||dn)dots+=`<circle cx="${X(i)}" cy="${Y(s[i])}" r="5" fill="${up?"var(--up)":"var(--dn)"}" stroke="var(--card)" stroke-width="2"/>`}
   let grid="";for(let g=0;g<=4;g++){const v=mn+(mx-mn)*g/4,y=Y(v);grid+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--bd)"/><text x="${W-R+6}" y="${y+4}">${f2(v)}</text>`}
   const ticks=[0,.25,.5,.75,1].map(p=>{const i=Math.round(p*(n-1));return`<text x="${X(i)}" y="${H-6}" text-anchor="${p===0?"start":p===1?"end":"middle"}">${dm(x.dates[i]).slice(0,5)}</text>`}).join("");
-  $("#md").innerHTML=`<div class="mh"><div><h2>${x.t} <span class="mut" style="font-weight:400;font-size:14px">${x.name||""}</span></h2><div class="sub">${x.sector||""} · oxirgi sham: ${dm(x.date)}</div></div><button class="x">×</button></div>
-  <div class="legend"><span><i style="background:var(--tx)"></i>Narx</span><span><i style="background:var(--ac)"></i>EMA ${D.short}</span><span><i style="background:var(--wa)"></i>EMA ${D.long}</span><span><span class="up">●</span> ▲ / <span class="dn">●</span> ▼ cross</span></div>
-  <div class="cw"><svg id="ch" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;touch-action:none">${grid}${ticks}
-  <polyline fill="none" stroke="var(--tx)" stroke-width="1.3" points="${P(c)}"/><polyline fill="none" stroke="var(--ac)" stroke-width="1.8" points="${P(s)}"/><polyline fill="none" stroke="var(--wa)" stroke-width="1.8" points="${P(l)}"/>${dots}
-  <line id="cl" y1="${T}" y2="${H-B}" stroke="var(--mut)" stroke-dasharray="3" style="display:none"/></svg><div id="tip"></div></div>
-  <div class="kv"><div>Narx<b>${f2(x.last)}</b></div><div>Δ%<b class="${x.chg>=0?"up":"dn"}">${x.chg>0?"+":""}${x.chg.toFixed(2)}%</b></div><div>EMA ${D.short}<b>${f2(x.ema_s)}</b></div><div>EMA ${D.long}<b>${f2(x.ema_l)}</b></div>
-  <div>Oxirgi cross<b class="${x.cross==="up"?"up":"dn"}">${x.cross?(x.cross==="up"?"▲ ":"▼ ")+agoTxt(x.ago):"—"}</b></div><div>Shamlar<b>${x.bars}</b></div></div>`;
+  const fv=favs().includes(x.t),h=pfs()[x.t]||{},p=plOf(x),vf=v=>v>=1e6?(v/1e6).toFixed(1)+"M":v>=1e3?(v/1e3).toFixed(1)+"K":v;
+  $("#md").innerHTML=`<div class="mh"><div><h2><span class="star ${fv?"on":""}" id="ms" style="font-size:20px">${fv?"★":"☆"}</span>${x.t} <span class="mut" style="font-weight:400;font-size:14px">${x.name||""}</span></h2><div class="sub">${x.sector||""} · oxirgi sham: ${dm(x.date)}</div></div><button class="x">×</button></div>
+  <div class="legend lg"><span><i style="background:var(--tx)"></i>${candle?"Sham":"Narx"}</span><span><i style="background:var(--ac)"></i>EMA ${D.short}</span><span><i style="background:var(--wa)"></i>EMA ${D.long}</span><span><span class="up">●</span> ▲ / <span class="dn">●</span> ▼ cross</span>${hasC?`<span class="tg"><button data-m="candle" class="${candle?"on":""}">Sham</button><button data-m="line" class="${candle?"":"on"}">Chiziq</button></span>`:""}</div>
+  <div class="cw"><svg id="ch" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;touch-action:none">${grid}${vol?`<text x="${W-R+6}" y="${vy+10}">${vf(vmax)}</text><text x="${W-R+6}" y="${vy+VH}">Hajm</text>`:""}${ticks}${body}
+  <polyline fill="none" stroke="var(--ac)" stroke-width="1.8" points="${P(s)}"/><polyline fill="none" stroke="var(--wa)" stroke-width="1.8" points="${P(l)}"/>${vol}${dots}
+  <line id="cl" y1="${T}" y2="${vy+VH}" stroke="var(--mut)" stroke-dasharray="3" style="display:none"/></svg><div id="tip"></div></div>
+  <div class="kv"><div>Narx<b>${f2(x.last)}</b></div><div>Δ%<b class="${x.chg>=0?"up":"dn"}">${sg(x.chg)}%</b></div><div>EMA ${D.short}<b>${f2(x.ema_s)}</b></div><div>EMA ${D.long}<b>${f2(x.ema_l)}</b></div>
+  <div>Oxirgi cross<b class="${x.cross==="up"?"up":"dn"}">${x.cross?(x.cross==="up"?"▲ ":"▼ ")+agoTxt(x.ago):"—"}</b></div><div>Shamlar<b>${x.bars}</b></div></div>
+  <div class="pfb"><b>💼 Portfel</b><div class="pfr"><label>Olgan narx<input id="pb" type="number" step="any" min="0" value="${h.buy||""}"></label><label>Soni (dona)<input id="pq" type="number" step="any" min="0" value="${h.qty||""}"></label><button class="btn p" id="ps">Saqlash</button>${h.buy?'<button class="btn" id="pd">Oʻchirish</button>':""}</div>
+  ${p?`<div class="kv"><div>Sarmoya<b>${f2(p.cost)}</b></div><div>Hozirgi qiymat<b>${f2(p.val)}</b></div><div>P/L<b class="${p.pl>=0?"up":"dn"}">${sg(p.pl)}</b></div><div>P/L %<b class="${p.pl>=0?"up":"dn"}">${sg(p.pct)}%</b></div></div>`:""}</div>`;
   $("#modal").classList.add("on");
+  $("#md").onclick=e=>{const t=e.target,m=t.dataset&&t.dataset.m;
+    if(m){store.set("mode",m);openM(x,m)}
+    else if(t.id==="ms"){toggleFav(x.t);openM(x,mode)}
+    else if(t.id==="ps"){const b=parseFloat($("#pb").value),q=parseFloat($("#pq").value);if(b>0&&q>0){const o=pfs();o[x.t]={buy:b,qty:q};store.set("pf",o);buildStats();render();openM(x,mode)}}
+    else if(t.id==="pd"){const o=pfs();delete o[x.t];store.set("pf",o);buildStats();render();openM(x,mode)}};
   const svg=$("#ch"),tip=$("#tip"),cl=$("#cl");
-  svg.onpointermove=e=>{const r=svg.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*W,i=Math.max(0,Math.min(n-1,Math.round((px-L)/(W-L-R)*(n-1))));
+  svg.onpointermove=e=>{const r=svg.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*W,i=Math.max(0,Math.min(n-1,Math.floor((px-L)/step)));
     cl.setAttribute("x1",X(i));cl.setAttribute("x2",X(i));cl.style.display="";
-    tip.style.display="block";tip.innerHTML=`<b>${dm(x.dates[i])}</b><br>Narx ${f2(c[i])}<br><span style="color:var(--ac)">EMA${D.short}</span> ${f2(s[i])}<br><span style="color:var(--wa)">EMA${D.long}</span> ${f2(l[i])}`;
+    tip.style.display="block";tip.innerHTML=`<b>${dm(x.dates[i])}</b><br>`+(hasC?`O ${f2(x.o[i])} · H ${f2(x.hi[i])}<br>L ${f2(x.lw[i])} · C ${f2(c[i])}`:`Narx ${f2(c[i])}`)+(x.v?`<br>Hajm ${vf(x.v[i])}`:"")+`<br><span style="color:var(--ac)">EMA${D.short}</span> ${f2(s[i])} · <span style="color:var(--wa)">EMA${D.long}</span> ${f2(l[i])}`;
     const tx=X(i)/W*r.width;tip.style.left=(tx>r.width/2?tx-tip.offsetWidth-12:tx+12)+"px";tip.style.top="8px"};
   svg.onpointerleave=()=>{tip.style.display="none";cl.style.display="none"}}
 </script>
