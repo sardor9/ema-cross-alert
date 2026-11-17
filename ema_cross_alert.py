@@ -136,8 +136,8 @@ def apply_overrides(meta):
     return meta
 
 
-def get_closes(stock_id):
-    """(yopilish narxlari, sanalar) — eskidan yangiga."""
+def get_rows(stock_id):
+    """Kunlik shamlar (eskidan yangiga): sana, OHLC, hajm."""
     j = get_json(f"{API}/app/v1/stock/StockGraphData/",
                  {"stock": stock_id, "limit": LIMIT, "date": "d"})
     rows = [r for r in j["results"] if r.get("closing_price") is not None]
@@ -145,7 +145,7 @@ def get_closes(stock_id):
     if len(traded) >= LONG + 2:
         rows = traded
     rows.sort(key=lambda r: r["date_"])
-    return [float(r["closing_price"]) for r in rows], [r["date_"] for r in rows]
+    return rows
 
 
 def ema(values, n):
@@ -156,7 +156,10 @@ def ema(values, n):
     return out
 
 
-def analyze(t, m, closes, dates):
+def analyze(t, m, rows):
+    closes = [float(r["closing_price"]) for r in rows]
+    dates = [r["date_"] for r in rows]
+    num = lambda r, k: float(r[k]) if r.get(k) is not None else float(r["closing_price"])
     s, l = ema(closes, SHORT), ema(closes, LONG)
     n = len(closes) - 1
     last = None
@@ -176,6 +179,10 @@ def analyze(t, m, closes, dates):
         "ago": (n - last[1]) if last else None,
         "date": dates[-1], "bars": len(closes),
         "dates": dates[-SERIES_N:], "c": r(closes), "s": r(s), "l": r(l),
+        "o": r([num(x, "opening_price") for x in rows]),
+        "hi": r([num(x, "highest_price") for x in rows]),
+        "lw": r([num(x, "lowest_price") for x in rows]),
+        "v": [int(x.get("volume") or 0) for x in rows[-SERIES_N:]],
     }
 
 
@@ -190,10 +197,11 @@ def send_tg(text):
 def check_one(t, meta, st, crosses, items):
     if t not in meta:
         raise KeyError("GoInvest'da tiker topilmadi")
-    closes, dates = get_closes(meta[t]["id"])
+    rows = get_rows(meta[t]["id"])
+    closes = rows
     if len(closes) < LONG + 2:
         raise ValueError(f"tarix yetarli emas ({len(closes)} sham)")
-    it = analyze(t, meta[t], closes, dates)
+    it = analyze(t, meta[t], rows)
     items[t] = it
     sig = it["cross"] if it["ago"] == 0 else None
     key = f"{sig}:{it['date']}"                    # bir xil sham uchun qayta yubormaslik
@@ -290,9 +298,8 @@ if __name__ == "__main__":
         m = meta.get(a.inspect)
         print("Meta:", m)
         if m:
-            c, d = get_closes(m["id"])
-            it = analyze(a.inspect, m, c, d)
-            print({k: v for k, v in it.items() if k not in ("dates", "c", "s", "l")})
+            it = analyze(a.inspect, m, get_rows(m["id"]))
+            print({k: v for k, v in it.items() if not isinstance(v, list)})
     elif a.once:
         check_all()
     else:
