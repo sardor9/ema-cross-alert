@@ -187,11 +187,19 @@ def analyze(t, m, rows):
 
 
 def send_tg(text):
-    if not TG_TOKEN or not TG_CHAT_ID:
+    """TG_CHAT_ID da bir nechta chat ID vergul bilan berilishi mumkin: 111,222 (shaxsiy yoki guruh)."""
+    chats = [c.strip() for c in TG_CHAT_ID.replace(";", ",").split(",") if c.strip()]
+    if not TG_TOKEN or not chats:
         print("[TG sozlanmagan]", text)
         return
-    requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-                  json={"chat_id": TG_CHAT_ID, "text": text}, timeout=20)
+    for c in chats:
+        try:
+            r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
+                              json={"chat_id": c, "text": text}, timeout=20)
+            if not r.ok:                           # masalan: "chat not found" — odam botga Start bosmagan
+                print(f"Telegram xato ({c}): {r.status_code} {r.text[:150]}", file=sys.stderr)
+        except requests.RequestException as e:
+            print(f"Telegram xato ({c}): {e}", file=sys.stderr)
 
 
 def check_one(t, meta, st, crosses, items):
@@ -276,6 +284,9 @@ def check_all():
             time.sleep(30)
             again = run_pass(retry, meta, st, crosses, items)
             failed = [t for t in failed if t not in retry] + again
+    latest = max((it["date"] for it in items.values()), default="")
+    send_sum = bool(crosses) or st.get("_summary") != latest or os.getenv("FORCE_SUMMARY") == "1"
+    st["_summary"] = latest                        # bir kunlik maʼlumot uchun xulosa faqat bir marta yuboriladi
     save_json(STATE_FILE, st)
     write_data(items, failed)
     ok = len(TICKERS) - len(failed)
@@ -283,7 +294,8 @@ def check_all():
     summary += f"\nCross: {', '.join(crosses)}" if crosses else "\nYangi cross yo'q."
     if failed:
         summary += f"\n⚠️ Olinmadi: {', '.join(failed)}"
-    send_tg(summary)
+    if send_sum:
+        send_tg(summary)
     if len(failed) == len(TICKERS):
         sys.exit(1)
 
