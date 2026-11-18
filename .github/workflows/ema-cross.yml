@@ -2,7 +2,9 @@ name: EMA Cross Alert
 
 on:
   schedule:
-    - cron: "30 12 * * 1-5"   # 17:30 Toshkent vaqti (UTC+5), dushanba–juma
+    - cron: "5 13 * * 1-5"    # 18:05 Toshkent (UTC+5)
+    - cron: "35 14 * * 1-5"   # 19:35 — zaxira (GitHub kechiktirsa)
+    - cron: "5 16 * * 1-5"    # 21:05 — zaxira
   workflow_dispatch:           # qo'lda ishga tushirish tugmasi
 
 concurrency:
@@ -26,6 +28,7 @@ jobs:
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          FORCE_SUMMARY: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
         run: python ema_cross_alert.py --once
       - name: Holatni saqlash
         run: |
