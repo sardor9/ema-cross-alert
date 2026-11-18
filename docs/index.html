@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EMA Cross · UZSE aksiyalari</title>
+<style>
+:root{--bg:#060b12;--card:#0c1520;--tx:#e8eef5;--mut:#7d8a99;--bd:#16222f;--up:#22d38a;--dn:#ff5c6c;--ac:#4aa3ff;--wa:#ffb547;--hi:#0f1d2b;--pr:#1fd69a}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:radial-gradient(900px 500px at 70% -10%,#0d2a2a55,transparent),var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
+
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+h1{font-size:22px;margin:0}.sub{color:var(--mut);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.st{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
+.st b{display:block;font-size:24px;line-height:1.1}.st span{color:var(--mut);font-size:12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+input,select{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:9px 12px;font:inherit}
+input{flex:1;min-width:150px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:99px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.seg button.on{background:var(--pr);border-color:var(--pr);color:#04130d}
+.banner{background:var(--hi);border:1px solid var(--ac);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:14px;display:none}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--bd);font-size:14px}
+th:first-child,td:first-child{text-align:left}th{color:var(--mut);font-weight:500;font-size:12px;background:var(--card);position:sticky;top:0}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--hi)}tbody tr:last-child td{border-bottom:0}
+.tk{font-weight:650}.nm{color:var(--mut);font-size:12px;max-width:170px;overflow:hidden;text-overflow:ellipsis}
+.up{color:var(--up)}.dn{color:var(--dn)}.mut{color:var(--mut)}
+.badge{display:inline-block;border-radius:99px;padding:2px 9px;font-size:12px;font-weight:600}
+.badge.up{background:color-mix(in srgb,var(--up) 16%,transparent)}.badge.dn{background:color-mix(in srgb,var(--dn) 16%,transparent)}
+.fresh td:first-child{box-shadow:inset 3px 0 0 var(--wa)}
+.empty{padding:30px;text-align:center;color:var(--mut)}
+svg text{font-size:11px;fill:var(--mut)}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:12px;z-index:9}
+#modal.on{display:flex}
+.md{background:var(--card);border:1px solid var(--bd);border-radius:14px;width:min(860px,100%);max-height:94vh;overflow:auto;padding:16px}
+.mh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.mh h2{margin:0;font-size:19px}.x{background:none;border:0;color:var(--mut);font-size:24px;cursor:pointer;line-height:1}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--mut);margin:8px 0}.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.cw{position:relative}#tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 9px;font-size:12px;display:none;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:12px}.kv div{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--mut)}.kv b{display:block;color:var(--tx);font-size:15px}
+.star{cursor:pointer;color:var(--mut);margin-right:6px;font-size:16px;user-select:none}.star.on{color:var(--wa)}.star:hover{color:var(--wa)}
+.tg{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-left:auto}.tg button{background:none;border:0;color:var(--mut);padding:4px 11px;font:inherit;font-size:12px;cursor:pointer}.tg button.on{background:var(--pr);color:#04130d}
+.lg{display:flex;align-items:center;flex-wrap:wrap;gap:14px}
+.pfb{margin-top:14px;border-top:1px solid var(--bd);padding-top:12px}.pfr{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:8px}
+.pfr label{display:flex;flex-direction:column;font-size:12px;color:var(--mut);gap:4px}.pfr input{width:130px}
+.btn{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:9px 14px;font:inherit;cursor:pointer}.btn.p{background:var(--pr);border-color:var(--pr);color:#04130d}
+.app{display:grid;grid-template-columns:190px 1fr;gap:16px;max-width:1280px;margin:0 auto}
+.sb{position:sticky;top:16px;align-self:start;background:linear-gradient(180deg,#0e1925,#09111a);border:1px solid var(--bd);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.lg0{font-weight:700;font-size:16px;margin:2px 4px 12px;display:flex;gap:8px;align-items:center}.lgi{color:var(--pr);font-size:20px}
+#nav{display:flex;flex-direction:column;gap:4px}#nav button{background:none;border:1px solid transparent;color:var(--mut);text-align:left;padding:9px 11px;border-radius:10px;font:inherit;font-size:14px;cursor:pointer}
+#nav button:hover{color:var(--tx)}#nav button.on{background:#1fd69a1c;border-color:#1fd69a40;color:var(--pr)}
+.sbm{color:var(--mut);font-size:11.5px;margin:14px 4px 2px;line-height:1.5}
+main{min-width:0}h1{font-size:24px}
+.pn{background:linear-gradient(180deg,#0e1925,#09121b);border:1px solid var(--bd);border-radius:16px;padding:16px;min-width:0}
+.pn h3{margin:0 0 12px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx);font-weight:600}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.ph h3{margin:0}
+.g2{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);gap:14px;margin-bottom:14px}.col{display:flex;flex-direction:column;gap:14px}
+.st{position:relative;background:linear-gradient(180deg,#0e1925,#09121b);padding:14px 14px 6px}.st span{font-size:11px;letter-spacing:.05em;text-transform:uppercase}.st b{margin:4px 0}
+.mcw{position:relative;padding-left:46px}.ya{position:absolute;left:0;top:0;bottom:18px;display:flex;flex-direction:column;justify-content:space-between;font-size:11px;color:var(--mut)}.xa{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:4px}
+.dl{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.dl i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px}.dl div{font-size:13px;line-height:2}
+.sgr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px}.sgr:last-child{border:0}.sgr .nm{flex:1}
+.av{display:inline-flex;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1fd69a33,#4aa3ff33);border:1px solid var(--bd);align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:8px;vertical-align:middle}
+.mv{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12.5px}.mb{height:6px;border-radius:4px;margin-top:3px}
+.card{border-radius:16px;background:linear-gradient(180deg,#0e1925,#09121b);box-shadow:none}.bar{margin-bottom:10px}
+@media (max-width:900px){.app{grid-template-columns:1fr}.sb{position:static;flex-direction:row;flex-wrap:wrap;align-items:center}.lg0{margin:0 8px 0 0}#nav{flex-direction:row;flex-wrap:wrap}.sbm{width:100%;margin:2px 4px}.g2{grid-template-columns:1fr}}
+footer{color:var(--mut);font-size:12px;margin:16px 0 8px;text-align:center}
+@media (max-width:640px){.hide-s{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+ <aside class="sb"><div class="lg0"><span class="lgi">◢</span>EMA Cross</div><nav id="nav"></nav><div class="sbm" id="meta">Yuklanmoqda…</div></aside>
+ <main>
+  <header><div><h1>Dashboard</h1><div class="sub">UZSE aksiyalari · kunlik shamlar</div></div></header>
+  <div class="banner" id="banner"></div>
+  <div class="stats" id="stats"></div>
+  <div class="g2">
+   <section class="pn"><div class="ph"><h3>UZSE indeksi (teng vaznli)</h3><div class="tg" id="rg" style="margin-left:0"><button data-r="22">1M</button><button data-r="65">3M</button><button data-r="999" class="on">Hammasi</button></div></div><div id="mc"></div></section>
+   <div class="col"><section class="pn"><h3>EMA holati</h3><div id="dn"></div></section><section class="pn"><h3>Bozor kayfiyati</h3><div id="gg"></div></section></div>
+  </div>
+  <div class="g2">
+   <section class="pn" id="tbl" style="padding:14px 0 0">
+    <div style="padding:0 16px"><h3>Aksiyalar</h3>
+    <div class="bar"><input id="q" placeholder="Qidirish: tiker yoki nom"><select id="sort"><option value="fresh">Saralash: yangi cross</option><option value="tk">Tiker (A–Z)</option><option value="chg">Oʻzgarish % (kamayish)</option><option value="chga">Oʻzgarish % (oʻsish)</option><option value="price">Narx</option></select></div>
+    <div class="seg" id="seg" style="margin-bottom:10px"></div></div>
+    <div class="tw"><table><thead><tr><th>Aksiya</th><th>Narx</th><th>Δ%</th><th class="hide-s">Grafik</th><th>Holat</th><th>Oxirgi cross</th></tr></thead><tbody id="tb"></tbody></table><div class="empty" id="empty" style="display:none"></div></div>
+   </section>
+   <div class="col"><section class="pn"><h3>Oxirgi signallar</h3><div id="sig"></div></section><section class="pn"><h3>Top oʻsgan / tushgan</h3><div class="mv" id="mv"></div></section></div>
+  </div>
+  <footer>Maʼlumot: GoInvest · kunlik shamlar · avtomatik yangilanadi · investitsion tavsiya emas</footer>
+ </main>
+</div>
+
+<div id="modal"><div class="md" id="md"></div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const FILTERS=[["all","Hammasi"],["up","Yangi ▲"],["down","Yangi ▼"],["above","EMA yuqorida"],["below","EMA pastda"],["fav","⭐ Sevimlilar"],["pf","💼 Portfel"]];
+const FRESH=3; let D=null, filt="all";
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const f2=x=>Number(x).toLocaleString("en-US",{maximumFractionDigits:2});
+const dm=d=>d?d.slice(8,10)+"."+d.slice(5,7)+"."+d.slice(2,4):"";
+const agoTxt=n=>n===0?"bugun":n+" sham oldin";
+
+const favs=()=>store.get("fav",[]),pfs=()=>store.get("pf",{});
+function toggleFav(t){const f=favs(),i=f.indexOf(t);i<0?f.push(t):f.splice(i,1);store.set("fav",f);render()}
+function plOf(x){const h=pfs()[x.t];if(!h||!h.qty||!h.buy)return null;const cost=h.buy*h.qty,val=x.last*h.qty;return{cost,val,pl:val-cost,pct:(val/cost-1)*100}}
+const sg=n=>(n>0?"+":"")+f2(n);
+function buildStats(){
+  const d=D,it=d.items,fu=it.filter(x=>x.cross==="up"&&x.ago<=FRESH).length,fd=it.filter(x=>x.cross==="down"&&x.ago<=FRESH).length,ix=M.idx,ret=ix[ix.length-1]-ix[0];
+  const cards=[[sg(ret)+"%",`UZSE indeksi · ${ix.length} kun`,ret>=0?"up":"dn",ix],[it.filter(x=>x.above).length,`EMA${d.short} > EMA${d.long}`,"up",M.br],[fu,`yangi ▲ (${FRESH} shamgacha)`,"up",M.ups.slice(-30)],[fd,`yangi ▼ (${FRESH} shamgacha)`,"dn",M.dns.slice(-30)]];
+  const ps=it.map(plOf).filter(Boolean);
+  if(ps.length){const cost=ps.reduce((a,p)=>a+p.cost,0),pl=ps.reduce((a,p)=>a+p.pl,0);cards.push([sg(pl/cost*100)+"%",`💼 Portfel P/L · ${sg(pl)} soʻm`,pl>=0?"up":"dn",null])}
+  $("#stats").innerHTML=cards.map(([n,l,c,v])=>`<div class="st"><span>${l}</span><b class="${c}">${n}</b>${v?sp(v,c==="dn"?"var(--dn)":"var(--up)"):""}</div>`).join("")}
+const sp=(v,c)=>area(v,160,40,c,"s"+Math.random().toString(36).slice(2,6));
+function area(v,w,h,col,id){if(!v||v.length<2)return"";const mn=Math.min(...v),mx=Math.max(...v),k=mx-mn||1,l=v.map((y,i)=>(i/(v.length-1)*w).toFixed(1)+","+(h-3-(y-mn)/k*(h-8)).toFixed(1)).join(" ");
+  return`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" width="100%" height="${h}" style="display:block"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs><polygon points="0,${h} ${l} ${w},${h}" fill="url(#${id})"/><polyline points="${l}" fill="none" stroke="${col}" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg>`}
+let M=null;
+function calc(){
+  const it=D.items.filter(x=>x.c&&x.dates),all=[...new Set(it.flatMap(x=>x.dates))].sort().slice(-90),N=all.length,z=()=>new Array(N).fill(0),idx=z(),br=z(),ups=z(),dns=z(),pos=new Map(all.map((d,i)=>[d,i]));
+  it.forEach(x=>{const m=new Map(x.dates.map((d,i)=>[d,i]));let last=0,base=null;
+    all.forEach((d,j)=>{if(m.has(d))last=m.get(d);else if(d<x.dates[0])last=0;const c=x.c[last];if(base===null)base=c;idx[j]+=c/base*100;br[j]+=x.s[last]>x.l[last]?1:0});
+    for(let i=1;i<x.s.length;i++){const j=pos.get(x.dates[i]);if(j===undefined)continue;if(x.s[i-1]<=x.l[i-1]&&x.s[i]>x.l[i])ups[j]++;if(x.s[i-1]>=x.l[i-1]&&x.s[i]<x.l[i])dns[j]++}});
+  M={all,idx:idx.map(v=>v/it.length),br:br.map(v=>v/it.length*100),ups,dns}}
+function drawMain(r){const v=M.idx.slice(-r),d=M.all.slice(-r),up=v[v.length-1]>=v[0];
+  $("#mc").innerHTML=`<div class="mcw">${area(v,700,230,up?"var(--up)":"var(--dn)","gm")}<div class="ya"><span>${f2(Math.max(...v))}</span><span>${f2(Math.min(...v))}</span></div></div><div class="xa" style="padding-left:46px"><span>${dm(d[0])}</span><span>${dm(d[d.length-1])}</span></div>`}
+function panels(){
+  drawMain(+($("#rg .on")||{dataset:{r:999}}).dataset.r);
+  const it=D.items,a=it.filter(x=>x.above).length,b=it.length-a,t=a+b||1,C=2*Math.PI*42,pct=Math.round(a/t*100);
+  $("#dn").innerHTML=`<div class="dl"><svg viewBox="0 0 110 110" width="120"><circle cx="55" cy="55" r="42" fill="none" stroke="var(--dn)" stroke-width="12"/><circle cx="55" cy="55" r="42" fill="none" stroke="var(--up)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${a/t*C} ${C}" transform="rotate(-90 55 55)"/><text x="55" y="54" text-anchor="middle" style="font-size:20px;fill:var(--tx);font-weight:650">${it.length}</text><text x="55" y="69" text-anchor="middle">aksiya</text></svg><div><i style="background:var(--up)"></i>EMA${D.short} yuqorida <b>${a}</b><br><i style="background:var(--dn)"></i>EMA${D.short} pastda <b>${b}</b></div></div>`;
+  const lb=pct<35?"Qoʻrquv":pct<65?"Neytral":"Ochkoʻzlik";
+  $("#gg").innerHTML=`<svg viewBox="0 0 120 74" width="100%" style="max-width:240px;display:block;margin:0 auto"><defs><linearGradient id="gr" x1="0" x2="1"><stop offset="0" stop-color="var(--dn)"/><stop offset=".5" stop-color="var(--wa)"/><stop offset="1" stop-color="var(--up)"/></linearGradient></defs><path d="M10 64 A50 50 0 0 1 110 64" pathLength="100" fill="none" stroke="var(--bd)" stroke-width="9" stroke-linecap="round"/><path d="M10 64 A50 50 0 0 1 110 64" pathLength="100" fill="none" stroke="url(#gr)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${pct} 100"/><text x="60" y="56" text-anchor="middle" style="font-size:22px;fill:var(--tx);font-weight:650">${pct}</text><text x="60" y="70" text-anchor="middle">${lb}</text></svg><div class="sub" style="text-align:center;margin-top:4px">EMA${D.short} > EMA${D.long} ulushi, %</div>`;
+  const sg2=it.filter(x=>x.cross).sort((p,q)=>p.ago-q.ago).slice(0,6);
+  $("#sig").innerHTML=sg2.map(x=>`<div class="sgr"><span class="av">${x.t.slice(0,2)}</span><div class="nm"><b>${x.t}</b><div class="mut" style="font-size:11.5px">${x.name||""}</div></div><div style="text-align:right"><span class="${x.cross==="up"?"up":"dn"}">${x.cross==="up"?"▲ yuqoriga":"▼ pastga"}</span><div class="mut" style="font-size:11.5px">${agoTxt(x.ago)} · ${dm(x.cross_date).slice(0,5)}</div></div></div>`).join("")||'<div class="mut">Signal yoʻq</div>';
+  const so=[...it].sort((p,q)=>q.chg-p.chg),row=x=>`<div><b>${x.t}</b> <span class="${x.chg>=0?"up":"dn"}">${sg(x.chg)}%</span><div class="mb" style="width:${Math.min(100,Math.abs(x.chg)*8)}%;background:var(${x.chg>=0?"--up":"--dn"})"></div></div>`;
+  $("#mv").innerHTML=so.slice(0,5).map(row).join("")+so.slice(-5).reverse().map(row).join("")}
+$("#rg").onclick=e=>{const r=e.target.dataset.r;if(r){[...$("#rg").children].forEach(b=>b.classList.toggle("on",b===e.target));drawMain(+r)}};
+const NAV=[["all","▦ Dashboard"],["fresh","◎ Signallar"],["pf","💼 Portfel"],["fav","⭐ Sevimlilar"]];
+function setFilt(k){filt=k;[...$("#seg").children].forEach(b=>b.classList.toggle("on",b.dataset.k===k));[...$("#nav").children].forEach(b=>b.classList.toggle("on",b.dataset.k===k));render()}
+function buildNav(){$("#nav").innerHTML=NAV.map(([k,l])=>`<button data-k="${k}" class="${k===filt?"on":""}">${l}</button>`).join("");$("#nav").onclick=e=>{const k=e.target.dataset.k;if(k){setFilt(k);if(k!=="all")$("#tbl").scrollIntoView({behavior:"smooth",block:"start"})}}}
+function load(){
+  return fetch("data.json?"+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(init).catch(()=>{
+    if(!D){$("#meta").textContent="Maʼlumot topilmadi";$("#empty").style.display="block";$("#empty").innerHTML="docs/data.json hali yaratilmagan.<br>GitHub → Actions → <b>EMA Cross Alert</b> → Run workflow bosing, tugagach sahifani yangilang."}})}
+setInterval(()=>{if(!document.hidden)load()},30*60*1000);   // sahifa ochiq tursa, jimgina yangilab turadi
+load();
+
+function init(d){
+  D=d; const t=new Date(d.updated);
+  $("#meta").textContent=`EMA ${d.short}/${d.long} · yangilangan: ${t.toLocaleString("ru-RU",{timeZone:"Asia/Tashkent",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})} (Toshkent)`+(d.failed&&d.failed.length?` · olinmadi: ${d.failed.length}`:"");
+  const it=d.items;calc();buildStats();panels();buildNav();
+  $("#seg").className="seg";
+  $("#seg").innerHTML=FILTERS.map(([k,l])=>`<button data-k="${k}" class="${k===filt?"on":""}">${l}</button>`).join("");
+  $("#seg").onclick=e=>{const k=e.target.dataset.k;if(k)setFilt(k)};
+  $("#q").oninput=render;$("#sort").onchange=render;
+  const seen=store.get("seen",{}),nw=it.filter(x=>x.cross&&x.ago<=FRESH&&seen[x.t]!==x.cross+x.cross_date);
+  if(nw.length){const b=$("#banner");b.style.display="block";b.innerHTML="🔔 Oxirgi tashrifingizdan beri yangi cross: "+nw.map(x=>`<b class="${x.cross==="up"?"up":"dn"}">${x.t} ${x.cross==="up"?"▲":"▼"}</b>`).join(", ");}
+  it.forEach(x=>{if(x.cross)seen[x.t]=x.cross+x.cross_date});store.set("seen",seen);
+  render()}
+
+function pass(x){
+  const q=$("#q").value.trim().toLowerCase();
+  if(q&&!(x.t.toLowerCase().includes(q)||(x.name||"").toLowerCase().includes(q)))return false;
+  return filt==="all"||(filt==="fresh"&&x.cross&&x.ago<=FRESH)||(filt==="up"&&x.cross==="up"&&x.ago<=FRESH)||(filt==="down"&&x.cross==="down"&&x.ago<=FRESH)||(filt==="above"&&x.above)||(filt==="below"&&!x.above)||(filt==="fav"&&favs().includes(x.t))||(filt==="pf"&&!!plOf(x))}
+
+function spark(x,n=50){
+  const c=x.c.slice(-n),s=x.s.slice(-n),l=x.l.slice(-n),all=c.concat(s,l),mn=Math.min(...all),mx=Math.max(...all),W=110,H=30,k=mx-mn||1;
+  const p=a=>a.map((v,i)=>(i/(a.length-1)*W).toFixed(1)+","+(H-2-(v-mn)/k*(H-4)).toFixed(1)).join(" ");
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><polyline fill="none" stroke="var(--mut)" stroke-width="1" points="${p(c)}"/><polyline fill="none" stroke="var(--ac)" stroke-width="1.4" points="${p(s)}"/><polyline fill="none" stroke="var(--wa)" stroke-width="1.4" points="${p(l)}"/></svg>`}
+
+function render(){
+  const so=$("#sort").value;let a=D.items.filter(pass);
+  const fr=x=>x.cross?x.ago:1e9,fv=favs();
+  a.sort((p,q)=>so==="tk"?p.t.localeCompare(q.t):so==="chg"?q.chg-p.chg:so==="chga"?p.chg-q.chg:so==="price"?q.last-p.last:fr(p)-fr(q)||p.t.localeCompare(q.t));
+  $("#tb").innerHTML=a.map(x=>{const fresh=x.cross&&x.ago<=FRESH;
+    return`<tr class="${fresh?"fresh":""}" data-t="${x.t}"><td><div class="tk"><span class="star ${fv.includes(x.t)?"on":""}" data-s="${x.t}">${fv.includes(x.t)?"★":"☆"}</span><span class="av">${x.t.slice(0,2)}</span>${x.t}${x.stale?' <span class="mut" title="eski maʼlumot">⏳</span>':""}</div><div class="nm">${x.name||""}</div></td>
+    <td>${f2(x.last)}${(()=>{const p=plOf(x);return p?`<div class="${p.pl>=0?"up":"dn"}" style="font-size:12px">${sg(p.pct)}%</div>`:""})()}</td><td class="${x.chg>=0?"up":"dn"}">${x.chg>0?"+":""}${x.chg.toFixed(2)}%</td><td class="hide-s">${spark(x)}</td>
+    <td><span class="badge ${x.above?"up":"dn"}">${x.above?"▲ yuqorida":"▼ pastda"}</span></td>
+    <td>${x.cross?`<span class="${x.cross==="up"?"up":"dn"}">${x.cross==="up"?"▲":"▼"}</span> ${agoTxt(x.ago)}<div class="mut" style="font-size:12px">${dm(x.cross_date)}</div>`:'<span class="mut">—</span>'}</td></tr>`}).join("");
+  $("#empty").style.display=a.length?"none":"block";if(!a.length)$("#empty").textContent="Hech narsa topilmadi"}
+
+$("#tb").onclick=e=>{if(e.target.classList.contains("star")){toggleFav(e.target.dataset.s);return}const tr=e.target.closest("tr");if(tr)openM(D.items.find(x=>x.t===tr.dataset.t))};
+$("#modal").onclick=e=>{if(e.target.id==="modal"||e.target.classList.contains("x"))$("#modal").classList.remove("on")};
+document.onkeydown=e=>{if(e.key==="Escape")$("#modal").classList.remove("on")};
+
+function openM(x,mode){
+  const hasC=Array.isArray(x.o);mode=hasC?(mode||store.get("mode","candle")):"line";
+  const W=800,L=8,R=58,T=10,PH=250,GAP=10,VH=60,B=24,H=T+PH+GAP+VH+B,c=x.c,s=x.s,l=x.l,n=c.length,candle=mode==="candle";
+  const lo=candle?x.lw:c,hi=candle?x.hi:c,mn0=Math.min(...lo,...s,...l),mx0=Math.max(...hi,...s,...l),pad=(mx0-mn0)*.06||1,mn=mn0-pad,mx=mx0+pad;
+  const step=(W-L-R)/n,X=i=>L+(i+.5)*step,Y=v=>T+(1-(v-mn)/(mx-mn))*PH,P=a=>a.map((v,i)=>X(i).toFixed(1)+","+Y(v).toFixed(1)).join(" "),bw=Math.max(1.5,step*.68);
+  const col=i=>hasC?(c[i]>=x.o[i]?"var(--up)":"var(--dn)"):"var(--mut)";
+  let body="";
+  if(candle)for(let i=0;i<n;i++){const y1=Y(Math.max(x.o[i],c[i])),y2=Y(Math.min(x.o[i],c[i]));body+=`<line x1="${X(i)}" x2="${X(i)}" y1="${Y(x.hi[i])}" y2="${Y(x.lw[i])}" stroke="${col(i)}"/><rect x="${X(i)-bw/2}" y="${y1}" width="${bw}" height="${Math.max(1,y2-y1)}" fill="${col(i)}"/>`}
+  else body=`<polyline fill="none" stroke="var(--tx)" stroke-width="1.3" points="${P(c)}"/>`;
+  const vmax=Math.max(...x.v,1),vy=T+PH+GAP;let vol="";
+  if(x.v)for(let i=0;i<n;i++){const h=x.v[i]/vmax*VH;vol+=`<rect x="${X(i)-bw/2}" y="${vy+VH-h}" width="${bw}" height="${h}" fill="${col(i)}" opacity=".5"/>`}
+  let dots="";for(let i=1;i<n;i++){const up=s[i-1]<=l[i-1]&&s[i]>l[i],dn=s[i-1]>=l[i-1]&&s[i]<l[i];if(up||dn)dots+=`<circle cx="${X(i)}" cy="${Y(s[i])}" r="5" fill="${up?"var(--up)":"var(--dn)"}" stroke="var(--card)" stroke-width="2"/>`}
+  let grid="";for(let g=0;g<=4;g++){const v=mn+(mx-mn)*g/4,y=Y(v);grid+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--bd)"/><text x="${W-R+6}" y="${y+4}">${f2(v)}</text>`}
+  const ticks=[0,.25,.5,.75,1].map(p=>{const i=Math.round(p*(n-1));return`<text x="${X(i)}" y="${H-6}" text-anchor="${p===0?"start":p===1?"end":"middle"}">${dm(x.dates[i]).slice(0,5)}</text>`}).join("");
+  const fv=favs().includes(x.t),h=pfs()[x.t]||{},p=plOf(x),vf=v=>v>=1e6?(v/1e6).toFixed(1)+"M":v>=1e3?(v/1e3).toFixed(1)+"K":v;
+  $("#md").innerHTML=`<div class="mh"><div><h2><span class="star ${fv?"on":""}" id="ms" style="font-size:20px">${fv?"★":"☆"}</span>${x.t} <span class="mut" style="font-weight:400;font-size:14px">${x.name||""}</span></h2><div class="sub">${x.sector||""} · oxirgi sham: ${dm(x.date)}</div></div><button class="x">×</button></div>
+  <div class="legend lg"><span><i style="background:var(--tx)"></i>${candle?"Sham":"Narx"}</span><span><i style="background:var(--ac)"></i>EMA ${D.short}</span><span><i style="background:var(--wa)"></i>EMA ${D.long}</span><span><span class="up">●</span> ▲ / <span class="dn">●</span> ▼ cross</span>${hasC?`<span class="tg"><button data-m="candle" class="${candle?"on":""}">Sham</button><button data-m="line" class="${candle?"":"on"}">Chiziq</button></span>`:""}</div>
+  <div class="cw"><svg id="ch" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;touch-action:none">${grid}${vol?`<text x="${W-R+6}" y="${vy+10}">${vf(vmax)}</text><text x="${W-R+6}" y="${vy+VH}">Hajm</text>`:""}${ticks}${body}
+  <polyline fill="none" stroke="var(--ac)" stroke-width="1.8" points="${P(s)}"/><polyline fill="none" stroke="var(--wa)" stroke-width="1.8" points="${P(l)}"/>${vol}${dots}
+  <line id="cl" y1="${T}" y2="${vy+VH}" stroke="var(--mut)" stroke-dasharray="3" style="display:none"/></svg><div id="tip"></div></div>
+  <div class="kv"><div>Narx<b>${f2(x.last)}</b></div><div>Δ%<b class="${x.chg>=0?"up":"dn"}">${sg(x.chg)}%</b></div><div>EMA ${D.short}<b>${f2(x.ema_s)}</b></div><div>EMA ${D.long}<b>${f2(x.ema_l)}</b></div>
+  <div>Oxirgi cross<b class="${x.cross==="up"?"up":"dn"}">${x.cross?(x.cross==="up"?"▲ ":"▼ ")+agoTxt(x.ago):"—"}</b></div><div>Shamlar<b>${x.bars}</b></div></div>
+  <div class="pfb"><b>💼 Portfel</b><div class="pfr"><label>Olgan narx<input id="pb" type="number" step="any" min="0" value="${h.buy||""}"></label><label>Soni (dona)<input id="pq" type="number" step="any" min="0" value="${h.qty||""}"></label><button class="btn p" id="ps">Saqlash</button>${h.buy?'<button class="btn" id="pd">Oʻchirish</button>':""}</div>
+  ${p?`<div class="kv"><div>Sarmoya<b>${f2(p.cost)}</b></div><div>Hozirgi qiymat<b>${f2(p.val)}</b></div><div>P/L<b class="${p.pl>=0?"up":"dn"}">${sg(p.pl)}</b></div><div>P/L %<b class="${p.pl>=0?"up":"dn"}">${sg(p.pct)}%</b></div></div>`:""}</div>`;
+  $("#modal").classList.add("on");
+  $("#md").onclick=e=>{const t=e.target,m=t.dataset&&t.dataset.m;
+    if(m){store.set("mode",m);openM(x,m)}
+    else if(t.id==="ms"){toggleFav(x.t);openM(x,mode)}
+    else if(t.id==="ps"){const b=parseFloat($("#pb").value),q=parseFloat($("#pq").value);if(b>0&&q>0){const o=pfs();o[x.t]={buy:b,qty:q};store.set("pf",o);buildStats();render();openM(x,mode)}}
+    else if(t.id==="pd"){const o=pfs();delete o[x.t];store.set("pf",o);buildStats();render();openM(x,mode)}};
+  const svg=$("#ch"),tip=$("#tip"),cl=$("#cl");
+  svg.onpointermove=e=>{const r=svg.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*W,i=Math.max(0,Math.min(n-1,Math.floor((px-L)/step)));
+    cl.setAttribute("x1",X(i));cl.setAttribute("x2",X(i));cl.style.display="";
+    tip.style.display="block";tip.innerHTML=`<b>${dm(x.dates[i])}</b><br>`+(hasC?`O ${f2(x.o[i])} · H ${f2(x.hi[i])}<br>L ${f2(x.lw[i])} · C ${f2(c[i])}`:`Narx ${f2(c[i])}`)+(x.v?`<br>Hajm ${vf(x.v[i])}`:"")+`<br><span style="color:var(--ac)">EMA${D.short}</span> ${f2(s[i])} · <span style="color:var(--wa)">EMA${D.long}</span> ${f2(l[i])}`;
+    const tx=X(i)/W*r.width;tip.style.left=(tx>r.width/2?tx-tip.offsetWidth-12:tx+12)+"px";tip.style.top="8px"};
+  svg.onpointerleave=()=>{tip.style.display="none";cl.style.display="none"}}
+</script>
+</body>
+</html>
