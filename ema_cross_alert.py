@@ -28,6 +28,7 @@ STATE_FILE = "ema_state.json"        # takroriy alertni oldini olish
 META_FILE = "ticker_meta.json"       # tiker -> {id, name, sector}
 OVERRIDES_FILE = "ticker_overrides.json"  # qo'lda ID: {"UZINP": 57}
 DATA_FILE = "docs/data.json"         # veb-sahifa o'qiydigan fayl
+SUB_FILE = "subscribers.json"        # botga Start bosganlar: {"offset": N, "chats": [id, ...]}
 API = "https://api.goinvest.uz/api"
 MAX_ID = 800
 PAUSE = 0.7
@@ -187,23 +188,89 @@ def analyze(t, m, rows):
     }
 
 
+def tg_api(method, **params):
+    r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/{method}", json=params, timeout=30)
+    return r.json()
+
+
+def send_one(c, text, ticker=None):
+    url = DASH_URL + (f"#{ticker}" if ticker else "")
+    btn = {"text": "📊 Dashboard'ni ochish"}
+    btn.update({"url": url} if str(c).startswith("-") else {"web_app": {"url": url}})   # shaxsiy chatda Mini App, guruhda havola
+    try:
+        r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
+                          json={"chat_id": c, "text": text, "reply_markup": {"inline_keyboard": [[btn]]}}, timeout=20)
+        if not r.ok:                               # masalan: "chat not found" yoki "bot was blocked"
+            print(f"Telegram xato ({c}): {r.status_code} {r.text[:150]}", file=sys.stderr)
+    except requests.RequestException as e:
+        print(f"Telegram xato ({c}): {e}", file=sys.stderr)
+
+
+def all_chats():
+    """Secret'dagi ID'lar (vergul bilan) + botga Start bosganlar."""
+    ids = [c.strip() for c in TG_CHAT_ID.replace(";", ",").split(",") if c.strip()]
+    ids += [str(c) for c in load_json(SUB_FILE, {}).get("chats", [])]
+    return list(dict.fromkeys(ids))
+
+
 def send_tg(text, ticker=None):
-    """TG_CHAT_ID da bir nechta chat ID vergul bilan berilishi mumkin: 111,222 (shaxsiy yoki guruh)."""
-    chats = [c.strip() for c in TG_CHAT_ID.replace(";", ",").split(",") if c.strip()]
+    chats = all_chats()
     if not TG_TOKEN or not chats:
         print("[TG sozlanmagan]", text)
         return
     for c in chats:
-        try:
-            url = DASH_URL + (f"#{ticker}" if ticker else "")
-            btn = {"text": "📊 Dashboard'ni ochish"}
-            btn.update({"url": url} if c.startswith("-") else {"web_app": {"url": url}})   # shaxsiy chatda Mini App, guruhda oddiy havola
-            r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-                              json={"chat_id": c, "text": text, "reply_markup": {"inline_keyboard": [[btn]]}}, timeout=20)
-            if not r.ok:                           # masalan: "chat not found" — odam botga Start bosmagan
-                print(f"Telegram xato ({c}): {r.status_code} {r.text[:150]}", file=sys.stderr)
-        except requests.RequestException as e:
-            print(f"Telegram xato ({c}): {e}", file=sys.stderr)
+        send_one(c, text, ticker)
+
+
+def fresh_signals_text():
+    items = load_json(DATA_FILE, {}).get("items", [])
+    fresh = sorted((x for x in items if x.get("cross") and x["ago"] <= 3), key=lambda x: x["ago"])
+    if not fresh:
+        return "Hozircha yangi cross yo'q."
+    return "Oxirgi signallar:\n" + "\n".join(
+        f"{'🟢' if x['cross'] == 'up' else '🔴'} {x['t']} — {'yuqoriga' if x['cross'] == 'up' else 'pastga'} "
+        f"({'bugun' if x['ago'] == 0 else str(x['ago']) + ' sham oldin'})" for x in fresh[:12])
+
+
+def sync_subscribers():
+    """getUpdates orqali /start, /stop, /signals buyruqlarini qayta ishlaydi."""
+    if not TG_TOKEN:
+        print("TG_TOKEN yo'q")
+        return
+    sub = load_json(SUB_FILE, {"offset": 0, "chats": []})
+    chats = [int(c) for c in sub.get("chats", [])]
+    res = tg_api("getUpdates", offset=sub.get("offset", 0), timeout=0, allowed_updates=["message", "my_chat_member"])
+    if not res.get("ok"):
+        print("getUpdates xato:", res, file=sys.stderr)
+        return
+    replies = []
+    for u in res["result"]:
+        sub["offset"] = u["update_id"] + 1
+        m = u.get("message")
+        if m and m["chat"]["type"] == "private":
+            cid, txt = m["chat"]["id"], (m.get("text") or "").strip().lower()
+            if txt.startswith("/start"):
+                if cid not in chats:
+                    chats.append(cid)
+                replies.append((cid, "✅ Obuna boʻldingiz! Har kuni EMA 9/26 cross signallari shu yerga keladi.\n"
+                                     "/signals — hozirgi signallar\n/stop — obunani bekor qilish\n\n" + fresh_signals_text()))
+            elif txt.startswith("/stop"):
+                chats = [c for c in chats if c != cid]
+                replies.append((cid, "Obuna bekor qilindi. Qayta yoqish uchun /start bosing."))
+            elif txt.startswith("/signals"):
+                replies.append((cid, fresh_signals_text()))
+        mc = u.get("my_chat_member")
+        if mc:
+            cid, status = mc["chat"]["id"], mc["new_chat_member"]["status"]
+            if status in ("kicked", "left"):
+                chats = [c for c in chats if c != cid]
+            elif status in ("member", "administrator") and mc["chat"]["type"] != "private" and cid not in chats:
+                chats.append(cid)                  # bot guruhga qo'shilsa, guruh ham obunachi
+    sub["chats"] = chats
+    save_json(SUB_FILE, sub, indent=1)
+    for cid, text in replies:
+        send_one(cid, text)
+    print(f"Obunachilar: {len(chats)}, yangi buyruqlar: {len(replies)}")
 
 
 def check_one(t, meta, st, crosses, items):
@@ -308,6 +375,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--inspect", metavar="TICKER")
     ap.add_argument("--once", action="store_true")
+    ap.add_argument("--subscribe", action="store_true")
     a = ap.parse_args()
     if a.inspect:
         meta = discover_ids([a.inspect], load_json(META_FILE, {}))
@@ -316,6 +384,8 @@ if __name__ == "__main__":
         if m:
             it = analyze(a.inspect, m, get_rows(m["id"]))
             print({k: v for k, v in it.items() if not isinstance(v, list)})
+    elif a.subscribe:
+        sync_subscribers()
     elif a.once:
         check_all()
     else:
