@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>EMA Cross · UZSE aksiyalari</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#060b12;--card:#0c1520;--tx:#e8eef5;--mut:#7d8a99;--bd:#16222f;--up:#22d38a;--dn:#ff5c6c;--ac:#4aa3ff;--wa:#ffb547;--hi:#0f1d2b;--pr:#1fd69a}
 *{box-sizing:border-box}html,body{margin:0}
@@ -98,6 +99,8 @@ footer{color:var(--mut);font-size:12px;margin:16px 0 8px;text-align:center}
 
 <script>
 const $=s=>document.querySelector(s);
+const TG=window.Telegram&&Telegram.WebApp;   // Telegram ichida ochilganda to'liq ekran va mos ranglar
+if(TG&&TG.initData){try{TG.ready();TG.expand();TG.setHeaderColor("#060b12");TG.setBackgroundColor("#060b12")}catch(e){}}
 const FILTERS=[["all","Hammasi"],["up","Yangi ▲"],["down","Yangi ▼"],["above","EMA yuqorida"],["below","EMA pastda"],["fav","⭐ Sevimlilar"],["pf","💼 Portfel"]];
 const FRESH=3; let D=null, filt="all";
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -158,6 +161,7 @@ function init(d){
   const seen=store.get("seen",{}),nw=it.filter(x=>x.cross&&x.ago<=FRESH&&seen[x.t]!==x.cross+x.cross_date);
   if(nw.length){const b=$("#banner");b.style.display="block";b.innerHTML="🔔 Oxirgi tashrifingizdan beri yangi cross: "+nw.map(x=>`<b class="${x.cross==="up"?"up":"dn"}">${x.t} ${x.cross==="up"?"▲":"▼"}</b>`).join(", ");}
   it.forEach(x=>{if(x.cross)seen[x.t]=x.cross+x.cross_date});store.set("seen",seen);
+  if(!window._h&&location.hash.length>1){window._h=1;const hx=it.find(i=>i.t===decodeURIComponent(location.hash.slice(1)).toUpperCase());if(hx)openM(hx)}   // #KVTS — aksiyani darrov ochadi
   render()}
 
 function pass(x){
