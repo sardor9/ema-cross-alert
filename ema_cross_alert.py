@@ -32,6 +32,7 @@ API = "https://api.goinvest.uz/api"
 MAX_ID = 800
 PAUSE = 0.7
 TRIES = 4
+DASH_URL = os.getenv("DASH_URL", "https://sardor9.github.io/ema-cross-alert/")   # dashboard manzili
 TG_TOKEN = os.getenv("TG_TOKEN", "")
 TG_CHAT_ID = os.getenv("TG_CHAT_ID", "")
 # --------------------------------------------
@@ -186,7 +187,7 @@ def analyze(t, m, rows):
     }
 
 
-def send_tg(text):
+def send_tg(text, ticker=None):
     """TG_CHAT_ID da bir nechta chat ID vergul bilan berilishi mumkin: 111,222 (shaxsiy yoki guruh)."""
     chats = [c.strip() for c in TG_CHAT_ID.replace(";", ",").split(",") if c.strip()]
     if not TG_TOKEN or not chats:
@@ -194,8 +195,11 @@ def send_tg(text):
         return
     for c in chats:
         try:
+            url = DASH_URL + (f"#{ticker}" if ticker else "")
+            btn = {"text": "📊 Dashboard'ni ochish"}
+            btn.update({"url": url} if c.startswith("-") else {"web_app": {"url": url}})   # shaxsiy chatda Mini App, guruhda oddiy havola
             r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-                              json={"chat_id": c, "text": text}, timeout=20)
+                              json={"chat_id": c, "text": text, "reply_markup": {"inline_keyboard": [[btn]]}}, timeout=20)
             if not r.ok:                           # masalan: "chat not found" — odam botga Start bosmagan
                 print(f"Telegram xato ({c}): {r.status_code} {r.text[:150]}", file=sys.stderr)
         except requests.RequestException as e:
@@ -215,7 +219,7 @@ def check_one(t, meta, st, crosses, items):
     key = f"{sig}:{it['date']}"                    # bir xil sham uchun qayta yubormaslik
     if sig and st.get(t) != key:
         arrow = "🟢 YUQORIGA (EMA9 > EMA26)" if sig == "up" else "🔴 PASTGA (EMA9 < EMA26)"
-        send_tg(f"EMA Cross: {t} · {it['name']}\n{arrow}\nNarx: {it['last']:,.2f} ({it['date']})")
+        send_tg(f"EMA Cross: {t} · {it['name']}\n{arrow}\nNarx: {it['last']:,.2f} ({it['date']})", ticker=t)
         st[t] = key
         crosses.append(f"{t} {'▲' if sig == 'up' else '▼'}")
     print(f"{t}: {sig or 'cross yo‘q'} ({it['date']}, {len(closes)} sham)")
